@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+*{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+  
+.html{
+    scroll-behavior: smooth;
+}
+
+path{
+    fill: #FFF;
+}
+
+path:hover{
+    fill: #DB3638;
+    transition: fill 400ms;
+}
+    
