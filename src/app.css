@@ -12,8 +12,9 @@
     scroll-behavior: smooth;
 }
 
-path{
+.country > path{
     fill: #FFF;
+    transition: fill 200ms;
 }
 
 .country:hover > path{
