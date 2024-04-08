@@ -1,22 +1,21 @@
-# create-svelte
+# Running the frontend
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+The website is made in HTML/CSS + Typescript using SvelteKit and Tailwind.
+## Installation
+The application can be run through npm. Install [Node.js](https://nodejs.org/en/download) and use the package manager 'npm' to install [Svelte](https://svelte.dev/docs/introduction) and [Tailwind](https://tailwindcss.com/docs/installation)
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
+npm install
+```
+```bash
+npm install -D tailwindcss postcss autoprefixer
 
-# create a new project in my-app
-npm create svelte@latest my-app
+npx tailwindcss init -p
 ```
 
-## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Developing
 
 ```bash
 npm run dev
