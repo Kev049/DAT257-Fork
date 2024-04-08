@@ -16,7 +16,7 @@ path{
     fill: #FFF;
 }
 
-path:hover{
+.country:hover > path{
     fill: #DB3638;
     transition: fill 400ms;
 }
