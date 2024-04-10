@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 *{
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -21,4 +20,3 @@
     fill: #DB3638;
     transition: fill 400ms;
 }
-    
