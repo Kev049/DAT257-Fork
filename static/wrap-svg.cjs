@@ -36,7 +36,7 @@ fs.readFile(svgFilePath, 'utf8', (err, data) => {
     // Collect all paths into a map based on their class or ID
     const countryPaths = {};
     document.querySelectorAll('path').forEach(path => {
-        const identifier = path.getAttribute('class') || path.getAttribute('id');
+        const identifier = path.getAttribute('class') || path.getAttribute('name');
         if (identifier) {
             if (!countryPaths[identifier]) {
                 countryPaths[identifier] = [];
@@ -71,3 +71,4 @@ fs.readFile(svgFilePath, 'utf8', (err, data) => {
         console.log("SVG file has been processed and saved.");
     });
 });
+j

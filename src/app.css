@@ -20,3 +20,18 @@
     fill: #DB3638;
     transition: fill 400ms;
 }
+
+.tooltip{
+    position: fixed;
+    padding: 4px 8px;
+    background: black;
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none; /* Ignore mouse events */
+    display: none;
+}
+
+.tooltip.show{
+    display: block;
+}
