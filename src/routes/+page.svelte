@@ -1,14 +1,14 @@
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center">
-    <nav class="w-full h-20 lg:h-24 flex bg-[#323638] ">
-        <div class="flex justify-start pl-16 items-center m-0 flex-1 font-dosis text-white text-2xl">
+    <nav class="w-full h-20 lg:h-24 grid grid-cols-3 bg-[#323638] ">
+        <div class="flex justify-start pl-16 items-center m-0 font-dosis text-white text-2xl">
             Logo
         </div>
-        <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis flex-1">
+        <div class="grid justify-center items-center m-0 text-white text-4xl font-dosis">
             <input type="text" placeholder=" Search..." class="rounded-lg text-black font-dosis width: 80%" name="searchfield">
             <button type="submit" class="background: #2196F3 float: left width: 20% border: 1px solid grey"><i class="searchbutton"></i></button>
             <!-- Search -->
         </div>
-        <div class="flex justify-end pr-16 items-center m-0 flex-1 font-dosis text-white text-2xl">
+        <div class="flex justify-end pr-16 items-center m-0 font-dosis text-white text-2xl">
             Menu
             <!-- Add menu here -->
         </div>
