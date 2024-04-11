@@ -4,15 +4,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-
+#Coordinates should take lat/long/country name from latlong.csv
 coordinates = [
-    (32.2, -111.0, 'Tucson', 700, 'Etc/GMT+7'),
-    (35.1, -106.6, 'Albuquerque', 1500, 'Etc/GMT+7'),
-    (37.8, -122.4, 'San Francisco', 10, 'Etc/GMT+8'),
-    (52.5, 13.4, 'Berlin', 34, 'Etc/GMT-1'),
-    (57.7, 12.1, 'Gothenburg', 10, 'Etc/GMT-1'),
-    (59.43, 18.09, 'Taby', 10, 'Etc/GMT-1'),
-    (65.58, 22.15, 'Lulea', 10, 'Etc/GMT-1')
+    (32.2, -111.0, 'Tucson', 700),
+    (35.1, -106.6, 'Albuquerque', 1500),
+    (37.8, -122.4, 'San Francisco', 10),
+    (52.5, 13.4, 'Berlin', 34),
+    (57.7, 12.1, 'Gothenburg', 10),
+    (59.43, 18.09, 'Taby', 10),
+    (65.58, 22.15, 'Lulea', 10)
 ]
 
 
@@ -25,12 +25,11 @@ module = sandia_modules['Canadian_Solar_CS5P_220M___2009_']
 inverter = sapm_inverters['ABB__MICRO_0_25_I_OUTD_US_208__208V_']
 
 temperature_model_parameters = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']
-
 tmys = []
 
 for location in coordinates:
-    latitude, longitude, name, altitude, timezone = location
-    weather = pvlib.iotools.get_pvgis_tmy(latitude, longitude)[0]
+    latitude, longitude, name, altitude = location
+    weather = pvlib.iotools.get_pvgis_tmy(latitude, longitude)[0]  #This line is the bottleneck
     weather.index.name = "utc_time"
     tmys.append(weather)
 
@@ -41,7 +40,7 @@ for location in coordinates:
 energies = {}
 
 for location, weather in zip(coordinates, tmys):
-    latitude, longitude, name, altitude, timezone = location
+    latitude, longitude, name, altitude = location
     system['surface_tilt'] = latitude
     solpos = pvlib.solarposition.get_solarposition(
         time=weather.index,
