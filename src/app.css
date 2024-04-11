@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+  
+.html{
+    scroll-behavior: smooth;
+}
+
+.country > path{
+    fill: #FFF;
+    transition: fill 200ms;
+}
+
+.country:hover > path{
+    fill: #DB3638;
+    transition: fill 400ms;
+}
+
+.tooltip{
+    position: fixed;
+    padding: 4px 8px;
+    background: black;
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none; /* Ignore mouse events */
+    display: none;
+}
+
+.tooltip.show{
+    display: block;
+}
