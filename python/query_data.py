@@ -7,4 +7,5 @@ def query_data(country: str): # Returns a dataframe containing the country match
     values = dataset.query('Country == @country')
     return values
 
-print(query_data(input("Write your country here: ")))
+if __name__ == "__main__":
+    print(query_data(input("Write your country here: ")))
