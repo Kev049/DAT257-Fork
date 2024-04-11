@@ -9,7 +9,7 @@ country_codes = pd.read_csv('python/country_codes.csv')
 full_merge = country_codes.merge(re_share, how='left', left_on='name', right_on='Country')
 full_merge = full_merge[['name','alpha-3','2021']]
 full_merge.columns = ['Country','Code (alpha-3)','Renewable energy production (%)']
-full_merge.to_csv('resources/Renewable_data.csv', index=None)
+full_merge.to_csv('resources/Renewable_data.csv', index=False)
 
 print("Which country would you like information for?")
 country = input()
