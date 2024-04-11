@@ -3,7 +3,7 @@
         <div class="flex justify-start pl-16 items-center m-0 font-dosis text-white text-2xl">
             Logo
         </div>
-        <div class="grid justify-center items-center m-0 text-white text-4xl font-dosis">
+        <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis">
             <input type="text" placeholder=" Search..." class="rounded-lg text-black font-dosis width: 80%" name="searchfield">
             <button type="submit" class="background: #2196F3 float: left width: 20% border: 1px solid grey"><i class="searchbutton"></i></button>
             <!-- Search -->
