@@ -51,6 +51,13 @@
         }
       }
 
+      function handleEscapeDown(e){
+        // pressed = [e.key, ...pressed]
+        if (e.key == "Escape"){
+          showSidePanel = false;
+        }
+      }
+
       return () => {
         // Cleanup listeners when the component is destroyed
         svgElement.removeEventListener('mouseover', handleMouseOver);
