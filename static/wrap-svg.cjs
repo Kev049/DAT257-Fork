@@ -48,19 +48,18 @@ fs.readFile(svgFilePath, 'utf8', (err, data) => {
     Object.keys(countryPaths).forEach(identifier => {
         // Use createElementNS with the SVG namespace to create the <a> element
         const svgNamespaceURI = "http://www.w3.org/2000/svg";
-        const a = document.createElementNS(svgNamespaceURI, 'a');
-        a.setAttribute('href', `#${identifier}`);
-        a.setAttribute('class', 'country');
+        const countryDiv = document.createElementNS(svgNamespaceURI, 'g');
+        countryDiv.setAttribute('class', 'country');
         
         const countryFullName = getCountryFullName(countryPaths[identifier][0]);
-        a.setAttribute('id', countryFullName);
+        countryDiv.setAttribute('id', countryFullName);
 
         countryPaths[identifier].forEach(path => {
-            a.appendChild(path.cloneNode(true));
+            countryDiv.appendChild(path.cloneNode(true));
             path.parentNode.removeChild(path);
         });
     
-        document.querySelector('svg').appendChild(a);
+        document.querySelector('svg').appendChild(countryDiv);
     });
 
     fs.writeFile(outputFile, dom.serialize(), (err) => {
@@ -71,4 +70,3 @@ fs.readFile(svgFilePath, 'utf8', (err, data) => {
         console.log("SVG file has been processed and saved.");
     });
 });
-j
