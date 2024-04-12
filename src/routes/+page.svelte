@@ -1,44 +1,52 @@
 <script>
     import { onMount } from 'svelte';
-  
+
+    let selectedCountry = '';  // This will hold the lowercase ID of the country to highlight
     let tooltipVisible = false;
     let tooltipContent = '';
     let tooltipX = 0;
     let tooltipY = 0;
-  
+
+    function updateCountry(event) {
+        selectedCountry = event.target.value.trim().toLowerCase();
+    }
+
     onMount(() => {
-      const svgElement = document.querySelector('svg');
-      svgElement.addEventListener('mouseover', handleMouseOver);
-      svgElement.addEventListener('mousemove', handleMouseMove);
-      svgElement.addEventListener('mouseout', handleMouseOut);
-      
-      function handleMouseOver(event) {
-        if (event.target.closest('g')) { // Ensure we are hovering over an <g> element
-          tooltipVisible = true;
-          tooltipContent = event.target.closest('g').id; 
+        const svgElement = document.querySelector('svg');
+        if (!svgElement) return;
+
+        svgElement.addEventListener('mouseover', handleMouseOver);
+        svgElement.addEventListener('mousemove', handleMouseMove);
+        svgElement.addEventListener('mouseout', handleMouseOut);
+
+        function handleMouseOver(event) {
+            if (event.target.closest('g')) { // Ensure we are hovering over a <g> element
+                tooltipVisible = true;
+                tooltipContent = event.target.closest('g').id;
+            }
         }
-      }
-      
-      function handleMouseMove(event) {
-        if (tooltipVisible) {
-          tooltipX = event.clientX + 10; // Offset the tooltip a bit from the cursor
-          tooltipY = event.clientY - 25;    
+
+        function handleMouseMove(event) {
+            if (tooltipVisible) {
+                tooltipX = event.pageX < window.innerWidth - 100 ? event.pageX + 10 : event.pageX - 35;
+                tooltipY = event.pageY - 25;
+            }
         }
-      }
-      
-      function handleMouseOut() {
-        tooltipVisible = false;
-      }
-  
-      return () => {
-        // Cleanup listeners when the component is destroyed
-        svgElement.removeEventListener('mouseover', handleMouseOver);
-        svgElement.removeEventListener('mousemove', handleMouseMove);
-        svgElement.removeEventListener('mouseout', handleMouseOut);
-      };
+
+        function handleMouseOut() {
+            tooltipVisible = false;
+        }
+
+        return () => {
+            svgElement.removeEventListener('mouseover', handleMouseOver);
+            svgElement.removeEventListener('mousemove', handleMouseMove);
+            svgElement.removeEventListener('mouseout', handleMouseOut);
+        };
     });
 </script>
 
+
+<!-- svelte-ignore non-top-level-reactive-declaration -->
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center bg-[#5cb5e1] backdrop-blur-lg">
     <nav class="w-full h-20 lg:h-24 grid grid-cols-3 bg-[#323638]">
         <div class="flex justify-start pl-16 items-center m-0 font-dosis text-white text-2xl max-h-full gap-2">
@@ -47,7 +55,7 @@
         </div>
         <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis">
             <form class="relative w-full flex max-h-full">
-                <input type="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
+                <input type="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" on:input="{updateCountry}" placeholder="Search countries, continents..." required />
                 <button type="submit" class="absolute border-2 right-2 top-2 text-white bg-[#323638] hover:opacity-[75%] focus:ring-4 focus:outline-none font-dosis rounded-lg text-sm px-4 py-2 ">Search</button>
             </form>
             <!-- <form class="w-full">

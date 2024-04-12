@@ -37,3 +37,7 @@
 .tooltip.visible{
     display: block;
 }
+
+.highlight {
+    fill: red;
+}
