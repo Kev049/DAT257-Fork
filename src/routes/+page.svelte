@@ -15,6 +15,7 @@
       svgElement.addEventListener('mouseout', handleMouseOut);
       svgElement.addEventListener('click', handleClick);
       document.addEventListener('keydown', handleEscapeDown);
+      document.addEventListener('click', handleClickOnSite);
       
       function handleMouseOver(event) {
         if (event.target.closest('g')) { // Ensure we are hovering over an <g> element
@@ -59,6 +60,14 @@
         }
       }
 
+      function handleClickOnSite(event){
+        if(!event.target.closest('g')){
+          if(showSidePanel){
+            showSidePanel = false;
+          }
+        }
+      }
+
       return () => {
         // Cleanup listeners when the component is destroyed
         svgElement.removeEventListener('mouseover', handleMouseOver);
@@ -66,6 +75,7 @@
         svgElement.removeEventListener('mouseout', handleMouseOut);
         svgElement.removeEventListener('click', handleClick);
         document.removeEventListener('keydown',handleEscapeDown);
+        document.removeEventListener('click', handleClickOnSite);
       };
     });
 </script>
@@ -99,7 +109,7 @@
             <!-- Add menu here -->
         </div>
     </nav>
-    <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen ">
+    <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen">
         {#if showSidePanel}
         <div class ="flex">
           <aside id="slide-panel" class="flex max-h-full fixed h-full items-center max w-1/5 right-0 top-0 justify-between px-6 bg-white text-gray-700 border-b border-gray-200 z-10">
