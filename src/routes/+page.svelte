@@ -65,7 +65,7 @@
         svgElement.removeEventListener('mousemove', handleMouseMove);
         svgElement.removeEventListener('mouseout', handleMouseOut);
         svgElement.removeEventListener('click', handleClick);
-        sidePanelElement.removeEventListener('keydown',handleEscapeDown);
+        document.removeEventListener('keydown',handleEscapeDown);
       };
     });
 </script>
