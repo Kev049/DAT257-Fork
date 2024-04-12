@@ -23,15 +23,17 @@
 
 .tooltip{
     position: fixed;
-    padding: 4px 8px;
-    background: black;
+    left: var(--tooltip-x);
+    top: var(--tooltip-y);
+    background-color: #323638;
     color: white;
+    padding: 8px;
     border-radius: 4px;
-    font-size: 14px;
-    pointer-events: none; /* Ignore mouse events */
     display: none;
+    pointer-events: none; 
+    z-index: 100; 
 }
 
-.tooltip.show{
+.tooltip.visible{
     display: block;
 }
