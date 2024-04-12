@@ -7,8 +7,8 @@
     let tooltipX = 0;
     let tooltipY = 0;
 
-    function updateCountry(event) {
-        selectedCountry = event.target.value.trim().toLowerCase();
+    function updateCountry(event){
+        selectedCountry = event.target.value.toLowerCase;
     }
 
     onMount(() => {
@@ -18,6 +18,13 @@
         svgElement.addEventListener('mouseover', handleMouseOver);
         svgElement.addEventListener('mousemove', handleMouseMove);
         svgElement.addEventListener('mouseout', handleMouseOut);
+        svgElement.addEventListener('input', handleSearchInput);
+
+        function handleSearchInput(event) {
+          event.querySelectorAll('g').forEach(g => {
+              g.classList.toggle('highlight', g.id.toLowerCase === selectedCountry);
+          });
+        }
 
         function handleMouseOver(event) {
             if (event.target.closest('g')) { // Ensure we are hovering over a <g> element
