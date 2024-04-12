@@ -14,6 +14,7 @@
       svgElement.addEventListener('mousemove', handleMouseMove);
       svgElement.addEventListener('mouseout', handleMouseOut);
       svgElement.addEventListener('click', handleClick);
+      svgElement.addEventListener('keydown', handleEscapeDown);
       
       function handleMouseOver(event) {
         if (event.target.closest('g')) { // Ensure we are hovering over an <g> element
@@ -53,6 +54,7 @@
 
       function handleEscapeDown(e){
         // pressed = [e.key, ...pressed]
+        console.log("waddup");
         if (e.key == "Escape"){
           showSidePanel = false;
         }
@@ -64,6 +66,7 @@
         svgElement.removeEventListener('mousemove', handleMouseMove);
         svgElement.removeEventListener('mouseout', handleMouseOut);
         svgElement.removeEventListener('click', handleClick);
+        svgElement.removeEventListener('keydown',handleEscapeDown);
       };
     });
 </script>
