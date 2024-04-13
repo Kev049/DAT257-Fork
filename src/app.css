@@ -21,23 +21,6 @@
     transition: fill 400ms;
 }
 
-.tooltip{
-    position: fixed;
-    left: var(--tooltip-x);
-    top: var(--tooltip-y);
-    background-color: #323638;
-    color: white;
-    padding: 8px;
-    border-radius: 4px;
-    display: none;
-    pointer-events: none; 
-    z-index: 100; 
-}
-
-.tooltip.visible{
-    display: block;
-}
-
 path.highlight {
     fill: #DB3638;
 }

@@ -616,7 +616,9 @@
       </svg>
     </div>
     <div class="w-full h-6 bg-[#5cb5e1]"></div>
-    <div class="tooltip {tooltipVisible ? 'visible' : ''} font-dosis" style="--tooltip-x: {tooltipX}px; --tooltip-y: {tooltipY}px;">
+    {#if tooltipVisible}
+    <div class="tooltip visible fixed left-[var(--tooltip-x)] top-[var(--tooltip-y)] bg-[#323638] z-10 text-white p-[0.5rem] rounded-lg font-dosis pointer-events-none" style="--tooltip-x: {tooltipX}px; --tooltip-y: {tooltipY}px;">
         {tooltipContent}
     </div>
+    {/if}
 </div>
