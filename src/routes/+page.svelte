@@ -1,113 +1,44 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { tooltipContent, handleFormSubmit, setupMapInteractions } from '../scripts/mapInteractions';
+    import { countryStore, countryContentStore, tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
 
-    let selectedCountry : string = '';  // This will hold the lowercase ID of the country to highlight
-
-    let tooltipVisible : boolean = false;
-    let tooltipContent : string = '';
-    let tooltipX : number = 0;
-    let tooltipY : number = 0;
-  
-    let showSidePanel: boolean, width;
-    let countryContent = '';
-
-    function handleFormSubmit(event : Event){
-        event.preventDefault();
-        updateHighlights();
-    }
-
-    function updateHighlights() {
-        const groups = document.querySelectorAll('svg g');
-        groups.forEach(g => {
-            const paths = g.querySelectorAll('path');
-            if(g.id.toLowerCase() === selectedCountry.toLowerCase()){
-                paths.forEach(path => {
-                    path.classList.toggle('highlight')
-                });
-            }    
-        });
-    }
+    let svgElement : SVGSVGElement;
+    let selectedCountry : string = $countryStore;
+    let tooltipVisible: boolean = false;
+    let tooltipX: number = 0;
+    let tooltipY: number = 0;
+    let countryContent: string = '';
+    let showSidePanel: boolean = false;
 
     onMount(() => {
-        const svgElement = document.querySelector('svg');
-        if (!svgElement) return;
+        const cleanup = setupMapInteractions(svgElement);
+        return cleanup; // Proper cleanup when the component is destroyed
+    });
 
-        svgElement.addEventListener('mouseover', handleMouseOver)
-        svgElement.addEventListener('mousemove', handleMouseMove);
-        svgElement.addEventListener('mouseout', handleMouseOut);
-        svgElement.addEventListener('click', handleClick);
-        document.addEventListener('keydown', handleEscapeDown);
-        document.addEventListener('click', handleClickOnSite);
+    function updateCountry(event: Event) {
+        const input = event.target as HTMLInputElement;  // Type assertion here
+        countryStore.set(input.value);  // Now TypeScript knows `value` exists on `input`
+    }
 
-        function handleMouseOver(event: MouseEvent) {
-            if (event.target) {
-                const target = event.target as Element;
-                const closestGroup = target.closest('g');
-                if (closestGroup) {
-                    tooltipVisible = true;
-                    tooltipContent = closestGroup.id;
-                }
-            }
-        }
-  
-        function handleMouseMove(event : MouseEvent) {
-            if (tooltipVisible) {
-                tooltipX = event.pageX < window.innerWidth - 100 ? event.pageX + 10 : event.pageX - 35;
-                tooltipY = event.pageY - 25;
-            }
-        }
+    tooltipToggler.subscribe(value => {
+        tooltipVisible = value;
+    });
 
-        function handleMouseOut() {
-            tooltipVisible = false;
-        }
+    sidepanelToggler.subscribe(value => {
+        showSidePanel = value;
+    });
 
-        function handleClick(event : MouseEvent){
-            if(event.target) {
-                const target = event.target as Element;
-                const closestGroup = target.closest('g')
-                if(closestGroup) {
-                    tooltipVisible = !tooltipVisible;
-                    toggleSidePanel(closestGroup.id);
-                }
-            }
-        }
+    countryContentStore.subscribe(value => {
+        countryContent = value;
+    });
 
-        function toggleSidePanel(content: string): void {
-            // Check if the side panel is currently hidden or the content has changed.
-            if (!showSidePanel || content !== countryContent) {
-                showSidePanel = true;
-                countryContent = content
-            } 
-            else {
-                showSidePanel = false;
-            }
-        }
+    xStore.subscribe(value => {
+        tooltipX = value;
+    });
 
-        function handleEscapeDown(event : KeyboardEvent){
-          // pressed = [e.key, ...pressed]
-          if (event.key == "Escape"){
-            showSidePanel = false;
-          }
-        }
-
-        function handleClickOnSite(event : MouseEvent){
-            const target = event.target as Element | null;
-            if (!target?.closest('g')) {
-                if (showSidePanel) {
-                    showSidePanel = false;
-                }
-            }
-        }
-
-      return () => {
-        // Cleanup listeners when the component is destroyed
-        svgElement.removeEventListener('mouseover', handleMouseOver);
-        svgElement.removeEventListener('mousemove', handleMouseMove);
-        svgElement.removeEventListener('mouseout', handleMouseOut);
-        svgElement.removeEventListener('click', handleClick);
-        document.removeEventListener('keydown',handleEscapeDown);
-        document.removeEventListener('click', handleClickOnSite);
-      };
+    yStore.subscribe(value => {
+        tooltipY = value;
     });
 </script>
 
@@ -119,7 +50,7 @@
         </div>
         <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis">
             <form class="relative w-full flex max-h-full" on:submit="{handleFormSubmit}">
-                <input type="search" bind:value={selectedCountry} class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
+                <input type="search" bind:value={selectedCountry} on:input="{updateCountry}" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
                 <button type="submit" class="absolute border-2 right-2 top-2 text-white bg-[#323638] hover:opacity-[75%] focus:ring-4 focus:outline-none font-dosis rounded-lg text-sm px-4 py-2 ">Search</button>
             </form>
         </div>
@@ -135,7 +66,7 @@
           </aside>
         </div>
       {/if}
-      <svg baseProfile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
+      <svg bind:this={svgElement} baseProfile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
           <circle cx="997.9" cy="189.1" id="0">
           </circle>
           <circle cx="673.5" cy="724.1" id="1">
