@@ -1,39 +1,50 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
+    
+    let selectedCountry : string = '';  // This will hold the lowercase ID of the country to highlight
 
-    let selectedCountry = '';  // This will hold the lowercase ID of the country to highlight
-    let tooltipVisible = false;
-    let tooltipContent = '';
-    let tooltipX = 0;
-    let tooltipY = 0;
+    let tooltipVisible : boolean = false;
+    let tooltipContent : string = '';
+    let tooltipX : number = 0;
+    let tooltipY : number = 0;
 
-    function updateCountry(event){
-        selectedCountry = event.target.value.toLowerCase;
+    function handleFormSubmit(event : Event){
+        event.preventDefault();
+        updateHighlights();
+    }
+
+    function updateHighlights() {
+        const groups = document.querySelectorAll('svg g');
+        groups.forEach(g => {
+            const paths = g.querySelectorAll('path');
+            if(g.id.toLowerCase() === selectedCountry.toLowerCase()){
+                paths.forEach(path => {
+                    path.classList.toggle('highlight')
+                });
+            }    
+        });
     }
 
     onMount(() => {
         const svgElement = document.querySelector('svg');
         if (!svgElement) return;
 
-        svgElement.addEventListener('mouseover', handleMouseOver);
+        svgElement.addEventListener('mouseover', handleMouseOver)
         svgElement.addEventListener('mousemove', handleMouseMove);
         svgElement.addEventListener('mouseout', handleMouseOut);
-        svgElement.addEventListener('input', handleSearchInput);
 
-        function handleSearchInput(event) {
-          event.querySelectorAll('g').forEach(g => {
-              g.classList.toggle('highlight', g.id.toLowerCase === selectedCountry);
-          });
-        }
-
-        function handleMouseOver(event) {
-            if (event.target.closest('g')) { // Ensure we are hovering over a <g> element
-                tooltipVisible = true;
-                tooltipContent = event.target.closest('g').id;
+        function handleMouseOver(event: MouseEvent) {
+            if (event.target) {
+                const target = event.target as Element;
+                const closestGroup = target.closest('g');
+                if (closestGroup) {
+                    tooltipVisible = true;
+                    tooltipContent = closestGroup.id;
+                }
             }
         }
 
-        function handleMouseMove(event) {
+        function handleMouseMove(event : MouseEvent) {
             if (tooltipVisible) {
                 tooltipX = event.pageX < window.innerWidth - 100 ? event.pageX + 10 : event.pageX - 35;
                 tooltipY = event.pageY - 25;
@@ -61,22 +72,17 @@
             reKnewable
         </div>
         <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis">
-            <form class="relative w-full flex max-h-full">
-                <input type="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" on:input="{updateCountry}" placeholder="Search countries, continents..." required />
+            <form class="relative w-full flex max-h-full" on:submit="{handleFormSubmit}">
+                <input type="search" bind:value={selectedCountry} class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
                 <button type="submit" class="absolute border-2 right-2 top-2 text-white bg-[#323638] hover:opacity-[75%] focus:ring-4 focus:outline-none font-dosis rounded-lg text-sm px-4 py-2 ">Search</button>
             </form>
-            <!-- <form class="w-full">
-                <input type="search" id="searchfield" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg  bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 font-dosis" placeholder="Search Mockups, Logos..." required />
-                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-dosis rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-            </form> -->
         </div>
         <div class="flex justify-end pr-16 items-center m-0 font-dosis text-white text-2xl">
             Menu
-            <!-- Add menu here -->
         </div>
     </nav>
     <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen ">
-        <svg baseprofile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewbox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
+        <svg baseProfile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
             <circle cx="997.9" cy="189.1" id="0">
             </circle>
             <circle cx="673.5" cy="724.1" id="1">

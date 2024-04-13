@@ -38,6 +38,6 @@
     display: block;
 }
 
-.highlight {
-    fill: red;
+path.highlight {
+    fill: #DB3638;
 }
