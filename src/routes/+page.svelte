@@ -1,92 +1,46 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
-  
-    let tooltipVisible = false;
-    let tooltipContent = '';
-    let tooltipX = 0;
-    let tooltipY = 0;
-    let showSidePanel, width;
-    let countryContent = '';
-  
+    import { tooltipContent, handleFormSubmit, setupMapInteractions } from '../scripts/mapInteractions';
+    import { countryStore, countryContentStore, tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
+
+    let svgElement : SVGSVGElement;
+    let selectedCountry : string = $countryStore;
+    let tooltipVisible: boolean = false;
+    let tooltipX: number = 0;
+    let tooltipY: number = 0;
+    let countryContent: string = '';
+    let showSidePanel: boolean = false;
+
     onMount(() => {
-      const svgElement = document.querySelector('svg');
-      svgElement.addEventListener('mouseover', handleMouseOver);
-      svgElement.addEventListener('mousemove', handleMouseMove);
-      svgElement.addEventListener('mouseout', handleMouseOut);
-      svgElement.addEventListener('click', handleClick);
-      document.addEventListener('keydown', handleEscapeDown);
-      document.addEventListener('click', handleClickOnSite);
-      
-      function handleMouseOver(event) {
-        if (event.target.closest('g')) { // Ensure we are hovering over an <g> element
-          tooltipVisible = true;
-          tooltipContent = event.target.closest('g').id; 
-        }
-      }
-      
-      function handleMouseMove(event) {
-        if (tooltipVisible) {
-          tooltipX = event.clientX + 10; // Offset the tooltip a bit from the cursor
-          tooltipY = event.clientY - 25;    
-        }
-      }
-      
-      function handleMouseOut() {
-        tooltipVisible = false;
-      }
-  
-      function handleClick(event){
-        if (event.target.closest('g')) {
-          tooltipVisible = !tooltipVisible;
-          toggleSidePanel(event.target.closest('g').id);
-        }
-      }
+        const cleanup = setupMapInteractions(svgElement);
+        return cleanup; // Proper cleanup when the component is destroyed
+    });
 
-      function toggleSidePanel(content) {
-        if(!showSidePanel){
-          showSidePanel = true;
-          countryContent = content;
-        } else if(content != countryContent){
-          countryContent = content;
-        } else {
-          showSidePanel = false;
-        }
-      }
+    function updateCountry(event: Event) {
+        const input = event.target as HTMLInputElement;  // Type assertion here
+        countryStore.set(input.value);  // Now TypeScript knows `value` exists on `input`
+    }
 
-      function handleEscapeDown(e){
-        // pressed = [e.key, ...pressed]
-        if (e.key == "Escape"){
-          showSidePanel = false;
-        }
-      }
+    tooltipToggler.subscribe(value => {
+        tooltipVisible = value;
+    });
 
-      function handleClickOnSite(event){
-        if(!event.target.closest('g')){
-          if(showSidePanel){
-            showSidePanel = false;
-          }
-        }
-      }
+    sidepanelToggler.subscribe(value => {
+        showSidePanel = value;
+    });
 
-      return () => {
-        // Cleanup listeners when the component is destroyed
-        svgElement.removeEventListener('mouseover', handleMouseOver);
-        svgElement.removeEventListener('mousemove', handleMouseMove);
-        svgElement.removeEventListener('mouseout', handleMouseOut);
-        svgElement.removeEventListener('click', handleClick);
-        document.removeEventListener('keydown',handleEscapeDown);
-        document.removeEventListener('click', handleClickOnSite);
-      };
+    countryContentStore.subscribe(value => {
+        countryContent = value;
+    });
+
+    xStore.subscribe(value => {
+        tooltipX = value;
+    });
+
+    yStore.subscribe(value => {
+        tooltipY = value;
     });
 </script>
-<!-- 
-<script>
-  import { fly, fade } from 'svelte/transition'
-  let showSidePanel, width;
-  function toggleSidePanel(country) {
-      showSidePanel = !showSidePanel
-  }
-</script> -->
 
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center bg-[#5cb5e1] backdrop-blur-lg">
     <nav class="w-full h-20 lg:h-24 grid grid-cols-3 bg-[#323638]">
@@ -95,18 +49,13 @@
             reKnewable
         </div>
         <div class="flex justify-center items-center m-0 text-white text-4xl font-dosis">
-            <form class="relative w-full flex max-h-full">
-                <input type="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
+            <form class="relative w-full flex max-h-full" on:submit="{handleFormSubmit}">
+                <input type="search" bind:value={selectedCountry} on:input="{updateCountry}" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 outline-none font-dosis" placeholder="Search countries, continents..." required />
                 <button type="submit" class="absolute border-2 right-2 top-2 text-white bg-[#323638] hover:opacity-[75%] focus:ring-4 focus:outline-none font-dosis rounded-lg text-sm px-4 py-2 ">Search</button>
             </form>
-            <!-- <form class="w-full">
-                <input type="search" id="searchfield" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg  bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 font-dosis" placeholder="Search Mockups, Logos..." required />
-                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-dosis rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-            </form> -->
         </div>
         <div class="flex justify-end pr-16 items-center m-0 font-dosis text-white text-2xl">
             Menu
-            <!-- Add menu here -->
         </div>
     </nav>
     <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen">
@@ -115,12 +64,9 @@
           <aside id="slide-panel" class="flex max-h-full fixed h-full items-center max w-1/5 right-0 top-0 justify-between px-6 bg-white text-gray-700 border-b border-gray-200 z-10">
             {countryContent}
           </aside>
-          <!-- <div class="h-screen flex justify-center items-center bg-gray-100">
-            <button type="button" id="toggleButton" class="bg-indigo-500 py-3 px-5 rounded uppercase text-lg text-white">Toggle</button>
-          </div> -->
         </div>
       {/if}
-      <svg baseprofile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewbox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
+      <svg bind:this={svgElement} baseProfile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
           <circle cx="997.9" cy="189.1" id="0">
           </circle>
           <circle cx="673.5" cy="724.1" id="1">
@@ -599,10 +545,11 @@
           </path><path class="Fiji" d="M 1994.4 606 1994 606.4 1993.2 607.5 1992.9 607.6 1992.2 608 1992 608.6 1991.6 608.8 1991.4 609.1 1991.3 609.3 1991.6 609.4 1992.2 609.1 1992.3 609 1992.6 608.7 1992.8 608.4 1993.4 608.1 1993.7 607.8 1994.3 607.5 1994.3 607.8 1993.8 608.5 1993.6 608.6 1993.7 609.2 1993.4 609.5 1993.1 609.2 1992.7 609.2 1992.2 609.3 1991.8 609.6 1991.1 609.7 1990.1 609.7 1990.6 609.2 1990.2 609 1989.6 609.2 1989.2 609.4 1989.2 609.6 1988.9 609.7 1988.7 609.8 1988.6 610.2 1988.4 610.5 1988.1 610.4 1988.1 610.2 1987.7 610.1 1987.3 610.3 1987.1 610.8 1986.8 611 1986.5 611 1986.5 610.7 1986.5 610.3 1986.3 609.9 1986.4 609.7 1986.3 609.6 1985.7 609.8 1985.7 609.4 1986.1 609.1 1986.2 609.1 1986.1 608.6 1986.4 608.5 1986.9 608.8 1987.5 608.4 1987.7 608.4 1988 608.1 1988.2 608.1 1988.5 607.8 1988.5 607.6 1989.3 607.5 1990.2 607.2 1990.5 607.1 1990.9 607.2 1991.4 607 1991.6 606.6 1991.8 606.6 1992 606.2 1992.4 606.3 1992.5 606.1 1992.7 606.2 1993.7 605.7 1993.8 606 1994 605.9 1994.2 606 1994.5 605.7 1995 605.5 1995.1 605.6 1994.6 606 1994.4 606 Z">
           </path></g>
       </svg>
-
     </div>
     <div class="w-full h-6 bg-[#5cb5e1]"></div>
-    <div class="tooltip {tooltipVisible ? 'visible' : ''} font-dosis" style="--tooltip-x: {tooltipX}px; --tooltip-y: {tooltipY}px;">
+    {#if tooltipVisible}
+    <div class="tooltip visible fixed left-[var(--tooltip-x)] top-[var(--tooltip-y)] bg-[#323638] z-10 text-white p-[0.5rem] rounded-lg font-dosis pointer-events-none" style="--tooltip-x: {tooltipX}px; --tooltip-y: {tooltipY}px;">
         {tooltipContent}
     </div>
+    {/if}
 </div>
