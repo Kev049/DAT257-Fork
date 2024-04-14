@@ -22,5 +22,6 @@
 }
 
 path.highlight {
-    fill: #DB3638;
+    stroke: #DB3638;
+    stroke-width: 0.2rem;
 }

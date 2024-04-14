@@ -13,12 +13,14 @@
 
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
-        return cleanup; // Proper cleanup when the component is destroyed
+        return cleanup;
     });
 
+    //Store variables
+
     function updateCountry(event: Event) {
-        const input = event.target as HTMLInputElement;  // Type assertion here
-        countryStore.set(input.value);  // Now TypeScript knows `value` exists on `input`
+        const input = event.target as HTMLInputElement;
+        countryStore.set(input.value); 
     }
 
     tooltipToggler.subscribe(value => {

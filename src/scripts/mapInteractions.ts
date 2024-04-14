@@ -6,6 +6,17 @@ export let tooltipContent: string = '';
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
     updateHighlights();
+    
+}
+
+function toggleSidePanel(content: string): void {
+    if (!get(sidepanelToggler) || content !== get(countryStore)) {
+        sidepanelToggler.set(true);
+        countryContentStore.set(content);
+    }
+    else {
+        sidepanelToggler.set(false);
+    }
 }
 
 function updateHighlights() {
@@ -19,11 +30,13 @@ function updateHighlights() {
     groups.forEach(g => {
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === get(countryStore).toLowerCase()) {
+            toggleSidePanel(g.id);
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
         }
     });
+    
 }
 
 export function setupMapInteractions(svgElement : SVGSVGElement) {
