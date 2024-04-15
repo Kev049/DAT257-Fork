@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { tooltipContent, handleFormSubmit, setupMapInteractions } from '../scripts/mapInteractions';
+    import { tooltipContent, handleFormSubmit, setupMapInteractions, initializeCountryMap, countries} from '../scripts/mapInteractions';
     import { countryStore, countryContentStore, tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
 
     let svgElement : SVGSVGElement;
@@ -13,6 +13,8 @@
 
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
+        initializeCountryMap();
+        
         return cleanup;
     });
 
@@ -20,7 +22,7 @@
 
     function updateCountry(event: Event) {
         const input = event.target as HTMLInputElement;
-        countryStore.set(input.value); 
+        countryStore.set(input.value);
     }
 
     tooltipToggler.subscribe(value => {

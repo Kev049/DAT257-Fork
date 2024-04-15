@@ -2,6 +2,7 @@ import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
 
 export let tooltipContent: string = '';
+export let countries: Set<string> = new Set<string>();
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
@@ -10,6 +11,7 @@ export function handleFormSubmit(event: Event) {
 }
 
 function toggleSidePanel(content: string): void {
+    console.log(countries);
     if (!get(sidepanelToggler) || content !== get(countryStore)) {
         sidepanelToggler.set(true);
         countryContentStore.set(content);
@@ -20,6 +22,7 @@ function toggleSidePanel(content: string): void {
 }
 
 function updateHighlights() {
+    // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
     groups.forEach(g => {
         g.querySelectorAll('path').forEach(path => {
@@ -27,7 +30,12 @@ function updateHighlights() {
         });
     });
 
+    // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
+        let translatedCountry = translateCountry(get(countryStore));
+        if (translatedCountry != undefined) {
+            toggleSidePanel(translatedCountry);
+        }
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === get(countryStore).toLowerCase()) {
             toggleSidePanel(g.id);
@@ -36,7 +44,27 @@ function updateHighlights() {
             });
         }
     });
-    
+}
+
+function translateCountry(input: string): string | undefined {
+    const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    if (countries.has(lowerInput)) {
+        return lowerInput; // Return the input as-is if it's already in the set
+    } else {
+        for (const country of countries) {
+            if (country.startsWith(lowerInput)) {
+                return country; // Return the matched country from the set
+            }
+        }
+    }
+    return undefined; // Return undefined if no match is found
+}
+
+export function initializeCountryMap() {
+    const groups = document.querySelectorAll("svg g");
+    groups.forEach(g => {
+        countries.add(g.id)
+    })
 }
 
 export function setupMapInteractions(svgElement : SVGSVGElement) {
