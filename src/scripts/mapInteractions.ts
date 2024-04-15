@@ -6,6 +6,7 @@ export let countries: Set<string> = new Set<string>();
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
+    console.log(countries);
     updateHighlights();
     
 }
@@ -33,11 +34,13 @@ function updateHighlights() {
     // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
         let translatedCountry = translateCountry(get(countryStore));
-        if (translatedCountry != undefined) {
-            toggleSidePanel(translatedCountry);
+        console.log(translatedCountry);
+
+        if (translatedCountry === undefined) {
+            return;
         }
         const paths = g.querySelectorAll('path');
-        if (g.id.toLowerCase() === get(countryStore).toLowerCase()) {
+        if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
             toggleSidePanel(g.id);
             paths.forEach(path => {
                 path.classList.add('highlight');
@@ -46,24 +49,45 @@ function updateHighlights() {
     });
 }
 
+// function translateCountry(input: string): string | undefined {
+//     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+//     if (countries.has(lowerInput)) {
+//         return lowerInput; // Return the input as-is if it's already in the set
+//     } else {
+//         for (const country of countries) {
+//             if (country.startsWith(lowerInput)) {
+//                 return country; // Return the matched country from the set
+//             }
+//         }
+//     }
+//     return undefined; // Return undefined if no match is found
+// }
+
 function translateCountry(input: string): string | undefined {
     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
-    if (countries.has(lowerInput)) {
-        return lowerInput; // Return the input as-is if it's already in the set
-    } else {
-        for (const country of countries) {
-            if (country.startsWith(lowerInput)) {
-                return country; // Return the matched country from the set
-            }
+
+    // First check if input matches the start of any country string
+    for (const country of countries) {
+        if (country.toLowerCase().startsWith(lowerInput)) {
+            return country; // Return the matched country from the set
         }
     }
+
+    // If no match found at the start, use regex to find matches anywhere within country strings
+    const regex = new RegExp(lowerInput, 'i'); // Create case-insensitive regex pattern from input
+    for (const country of countries) {
+        if (regex.test(country.toLowerCase())) {
+            return country; // Return the matched country from the set
+        }
+    }
+
     return undefined; // Return undefined if no match is found
 }
 
 export function initializeCountryMap() {
     const groups = document.querySelectorAll("svg g");
     groups.forEach(g => {
-        countries.add(g.id)
+        countries.add(g.id.toLowerCase())
     })
 }
 
