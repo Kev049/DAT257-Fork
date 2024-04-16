@@ -1,3 +1,8 @@
+<script>
+    export let data;
+    console.log(data);
+</script>
+
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center">
     <nav class="w-full h-20 lg:h-24 flex bg-[#323638] ">
         <div class="flex justify-start pl-16 items-center m-0 flex-1 font-dosis text-white text-2xl">
