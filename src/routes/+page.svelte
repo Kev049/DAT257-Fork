@@ -17,7 +17,6 @@
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
         initializeCountryMap();
-        
         return cleanup;
     });
 
@@ -25,7 +24,6 @@
         viewBox = zoom(event, svgElement, viewBox);
         svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
     }
-
 
     //Store variables
 
