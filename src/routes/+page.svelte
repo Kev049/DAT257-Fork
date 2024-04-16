@@ -2,12 +2,12 @@
     import { onMount } from 'svelte';
     import { tooltipContent, handleFormSubmit, setupMapInteractions, initializeCountryMap, countries} from '../scripts/mapInteractions';
     import { countryStore, countryContentStore, tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
-    import { zoom, type ViewBox } from '../scripts/zoom';
-
+    import { zoom, type ViewBox, startDrag, onDrag } from '../scripts/zoom';
     export let data;
 
     let svgElement: SVGSVGElement;
     let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
+    let dragStart: { startX: number; startY: number } | null = null;
 
     let selectedCountry : string = $countryStore;
     let tooltipVisible: boolean = false;
@@ -15,6 +15,23 @@
     let tooltipY: number = 0;
     let countryContent: string = '';
     let showSidePanel: boolean = false;
+
+    // Start drag
+    function handleMouseDown(event: MouseEvent) {
+        dragStart = startDrag(event);
+    }
+
+    // Handle dragging
+    function handleMouseMove(event: MouseEvent) {
+        if (dragStart) {
+            viewBox = onDrag(event, dragStart.startX, dragStart.startY, viewBox, svgElement);
+            svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+        }
+    }
+
+    function handleMouseUp() {
+            dragStart = null;
+    }
 
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
@@ -81,7 +98,8 @@
           </aside>
         </div>
       {/if}
-      <figure on:wheel={handleWheel}>
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <div on:wheel={handleWheel} on:mousedown={handleMouseDown} on:mousemove={handleMouseMove} on:mouseup={handleMouseUp} on:mouseleave={handleMouseUp} style="cursor: grab; user-select: none; outline: none;" aria-label="Interactive SVG Map" role="application">
         <svg bind:this={svgElement} baseProfile="tiny" fill="#ececec" height="857" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" width="2000" xmlns="http://www.w3.org/2000/svg">
             <circle cx="997.9" cy="189.1" id="0">
             </circle>
@@ -561,8 +579,7 @@
             </path><path class="Fiji" d="M 1994.4 606 1994 606.4 1993.2 607.5 1992.9 607.6 1992.2 608 1992 608.6 1991.6 608.8 1991.4 609.1 1991.3 609.3 1991.6 609.4 1992.2 609.1 1992.3 609 1992.6 608.7 1992.8 608.4 1993.4 608.1 1993.7 607.8 1994.3 607.5 1994.3 607.8 1993.8 608.5 1993.6 608.6 1993.7 609.2 1993.4 609.5 1993.1 609.2 1992.7 609.2 1992.2 609.3 1991.8 609.6 1991.1 609.7 1990.1 609.7 1990.6 609.2 1990.2 609 1989.6 609.2 1989.2 609.4 1989.2 609.6 1988.9 609.7 1988.7 609.8 1988.6 610.2 1988.4 610.5 1988.1 610.4 1988.1 610.2 1987.7 610.1 1987.3 610.3 1987.1 610.8 1986.8 611 1986.5 611 1986.5 610.7 1986.5 610.3 1986.3 609.9 1986.4 609.7 1986.3 609.6 1985.7 609.8 1985.7 609.4 1986.1 609.1 1986.2 609.1 1986.1 608.6 1986.4 608.5 1986.9 608.8 1987.5 608.4 1987.7 608.4 1988 608.1 1988.2 608.1 1988.5 607.8 1988.5 607.6 1989.3 607.5 1990.2 607.2 1990.5 607.1 1990.9 607.2 1991.4 607 1991.6 606.6 1991.8 606.6 1992 606.2 1992.4 606.3 1992.5 606.1 1992.7 606.2 1993.7 605.7 1993.8 606 1994 605.9 1994.2 606 1994.5 605.7 1995 605.5 1995.1 605.6 1994.6 606 1994.4 606 Z">
             </path></g>
         </svg>
-      </figure>
-      
+    </div>
     </div>
     <div class="w-full h-6 bg-[#5cb5e1]"></div>
     {#if tooltipVisible}
