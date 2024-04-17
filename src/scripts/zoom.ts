@@ -1,6 +1,7 @@
+import { onDestroy } from "svelte";
 import { viewBoxStore } from "../store/mapStore";
 
-const maxDimensions = { width: 4000, height: 4000 };
+const maxDimensions = { width: 3000, height: 3000 };
 const minDimensions = { width: 2, height: 2 };
 
 export interface ViewBox {
@@ -19,10 +20,19 @@ export function startDrag(event: MouseEvent): { startX: number; startY: number }
 }
 
 export function onDrag(event: MouseEvent, startX: number, startY: number, viewBox: ViewBox, svgElement: SVGSVGElement): ViewBox {
-    const dragFactor = 0.1;
+    const dragFactor: number = 0.1;
+    const maxSpeed: number = 20;
     
-    const dx = (startX - event.pageX) * (viewBox.width / svgElement.clientWidth) * dragFactor;
-    const dy = (startY - event.pageY) * (viewBox.height / svgElement.clientHeight) * dragFactor;
+    let dx: number = (startX - event.pageX) * (viewBox.width / svgElement.clientWidth) * dragFactor;
+    let dy: number = (startY - event.pageY) * (viewBox.height / svgElement.clientHeight) * dragFactor;
+
+    if(Math.abs(dx) > maxSpeed){ 
+        dx = maxSpeed * Math.sign(dx);
+    }
+
+    if(Math.abs(dy) > maxSpeed){ 
+        dy = maxSpeed * Math.sign(dy);
+    }
 
     viewBox.x += dx;
     viewBox.y += dy;
@@ -62,41 +72,38 @@ export function zoom(event: WheelEvent, svgElement: SVGSVGElement, viewBox: View
 export function zoomToCountry(svgElement: SVGSVGElement, viewBox: ViewBox, countryId: string): void {
     countryId = countryId.replace(/ /g, "\\ ");
     const country = svgElement.querySelector(`#${countryId}`) as SVGGraphicsElement | null;
-    if (country) {
-        const bbox: DOMRect = country.getBBox();
-        let padding: number = Math.max(2, (bbox.width + bbox.height) / 2);
+    
+    if (!country) return;
+    const bbox: DOMRect = country.getBBox();
+    let padding: number = Math.max(2, (bbox.width + bbox.height) / 2);
 
-        const targetViewBox: ViewBox = {
-            x: bbox.x - (bbox.width / 1.5),
-            y: bbox.y,
-            width: bbox.width + 2 * padding,
-            height: bbox.height + 2 * padding
-        };
+    const targetViewBox: ViewBox = {
+        x: bbox.x - (bbox.width / 1.5),
+        y: bbox.y,
+        width: bbox.width + 2 * padding,
+        height: bbox.height + 2 * padding
+    };
 
-        const duration: number = 500;
-        const startTime: number = Date.now();
+    const duration: number = 500;
+    const startTime: number = Date.now();
 
-        function animate(): void {
-            const currentTime: number = Date.now();
-            const elapsedTime: number = currentTime - startTime;
-            const progress: number = Math.min(elapsedTime / duration, 1); 
+    function animate(): void {
+        const currentTime: number = Date.now();
+        const elapsedTime: number = currentTime - startTime;
+        const progress: number = Math.min(elapsedTime / duration, 1); 
 
-            viewBox.x = viewBox.x + (targetViewBox.x - viewBox.x) * progress;
-            viewBox.y = viewBox.y + (targetViewBox.y - viewBox.y) * progress;
-            viewBox.width = viewBox.width + (targetViewBox.width - viewBox.width) * progress;
-            viewBox.height = viewBox.height + (targetViewBox.height - viewBox.height) * progress;
+        viewBox.x = viewBox.x + (targetViewBox.x - viewBox.x) * progress;
+        viewBox.y = viewBox.y + (targetViewBox.y - viewBox.y) * progress;
+        viewBox.width = viewBox.width + (targetViewBox.width - viewBox.width) * progress;
+        viewBox.height = viewBox.height + (targetViewBox.height - viewBox.height) * progress;
 
-            svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+        svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
 
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                viewBoxStore.set(viewBox);
-            }
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            viewBoxStore.set(viewBox);
         }
-
-        requestAnimationFrame(animate);
-    } else {
-        console.error(`Country with ID ${countryId} not found.`);
     }
+    requestAnimationFrame(animate);
 }
