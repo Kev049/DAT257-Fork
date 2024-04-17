@@ -1,18 +1,17 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { zoomToCountry } from './zoom';
+import { viewBox, svgElement } from '../components/+map.svelte';
 
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
-    console.log(countries);
     updateHighlights();
-    
 }
 
 function toggleSidePanel(content: string): void {
-    console.log(countries);
     if (!get(sidepanelToggler) || content !== get(countryStore)) {
         sidepanelToggler.set(true);
         countryContentStore.set(content);
@@ -25,6 +24,7 @@ function toggleSidePanel(content: string): void {
 function updateHighlights() {
     // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
+
     groups.forEach(g => {
         g.querySelectorAll('path').forEach(path => {
             path.classList.remove('highlight');
@@ -34,20 +34,22 @@ function updateHighlights() {
     // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
         let translatedCountry = translateCountry(get(countryStore));
-        console.log(translatedCountry);
 
         if (translatedCountry === undefined) {
             return;
         }
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
+            console.log(g.id)
             toggleSidePanel(g.id);
+            zoomToCountry(svgElement, viewBox, g.id)
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
         }
     });
 }
+
 
 // function translateCountry(input: string): string | undefined {
 //     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
@@ -131,16 +133,6 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
                 tooltipToggler.set(!get(tooltipToggler));
                 toggleSidePanel(closestGroup.id);
             }
-        }
-    }
-
-    function toggleSidePanel(content: string): void {
-        if (!get(sidepanelToggler) || content !== get(countryStore)) {
-            sidepanelToggler.set(true);
-            countryContentStore.set(content);
-        }
-        else {
-            sidepanelToggler.set(false);
         }
     }
 

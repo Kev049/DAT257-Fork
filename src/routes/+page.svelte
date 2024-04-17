@@ -49,7 +49,6 @@
         {/if}
         <Map></Map>
     </div>
-    <div class="w-full h-6 bg-[#5cb5e1]"></div>
     {#if tooltipVisible}
     <div class="tooltip visible fixed left-[var(--tooltip-x)] top-[var(--tooltip-y)] bg-[#323638] z-10 text-white p-[0.5rem] rounded-lg font-dosis pointer-events-none" style="--tooltip-x: {tooltipX}px; --tooltip-y: {tooltipY}px;">
         {tooltipContent}

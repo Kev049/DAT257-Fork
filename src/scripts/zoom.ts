@@ -1,3 +1,8 @@
+import { viewBoxStore } from "../store/mapStore";
+
+const maxDimensions = { width: 4000, height: 4000 };
+const minDimensions = { width: 2, height: 2 };
+
 export interface ViewBox {
     x: number;
     y: number;
@@ -28,23 +33,17 @@ export function onDrag(event: MouseEvent, startX: number, startY: number, viewBo
 export function zoom(event: WheelEvent, svgElement: SVGSVGElement, viewBox: ViewBox): ViewBox {
     event.preventDefault();
 
-    // Define maximum and minimum dimensions
-    const maxDimensions = { width: 3000, height: 1000 };
-    const minDimensions = { width: 150, height: 50 };
-
-    // Calculate the scale factor based on the wheel direction
     const scaleFactor = event.deltaY < 0 ? 1.1 : 0.9;
 
-    // Proposed new dimensions
     const newWidth = viewBox.width * scaleFactor;
     const newHeight = viewBox.height * scaleFactor;
 
-    // Ensure the new dimensions do not exceed maximum or minimum bounds
+    // Dimension constraints
     if (newWidth > maxDimensions.width || newHeight > maxDimensions.height) {
-        return viewBox; // Return current viewBox if proposed dimensions are too large
+        return viewBox; 
     }
     if (newWidth < minDimensions.width || newHeight < minDimensions.height) {
-        return viewBox; // Return current viewBox if proposed dimensions are too small
+        return viewBox;
     }
 
     // Calculate the new viewBox origin
@@ -58,4 +57,46 @@ export function zoom(event: WheelEvent, svgElement: SVGSVGElement, viewBox: View
     viewBox.height = newHeight;
 
     return viewBox;
+}
+
+export function zoomToCountry(svgElement: SVGSVGElement, viewBox: ViewBox, countryId: string): void {
+    countryId = countryId.replace(/ /g, "\\ ");
+    const country = svgElement.querySelector(`#${countryId}`) as SVGGraphicsElement | null;
+    if (country) {
+        const bbox: DOMRect = country.getBBox();
+        let padding: number = Math.max(2, (bbox.width + bbox.height) / 2);
+
+        const targetViewBox: ViewBox = {
+            x: bbox.x - (bbox.width / 1.5),
+            y: bbox.y,
+            width: bbox.width + 2 * padding,
+            height: bbox.height + 2 * padding
+        };
+
+        const duration: number = 500;
+        const startTime: number = Date.now();
+
+        function animate(): void {
+            const currentTime: number = Date.now();
+            const elapsedTime: number = currentTime - startTime;
+            const progress: number = Math.min(elapsedTime / duration, 1); 
+
+            viewBox.x = viewBox.x + (targetViewBox.x - viewBox.x) * progress;
+            viewBox.y = viewBox.y + (targetViewBox.y - viewBox.y) * progress;
+            viewBox.width = viewBox.width + (targetViewBox.width - viewBox.width) * progress;
+            viewBox.height = viewBox.height + (targetViewBox.height - viewBox.height) * progress;
+
+            svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                viewBoxStore.set(viewBox);
+            }
+        }
+
+        requestAnimationFrame(animate);
+    } else {
+        console.error(`Country with ID ${countryId} not found.`);
+    }
 }

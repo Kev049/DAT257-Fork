@@ -1,9 +1,14 @@
 <script lang="ts" context="module">
     import { zoom, type ViewBox, startDrag, onDrag } from '../scripts/zoom';
+    import { viewBoxStore } from '../store/mapStore';
 
+    export let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
     export let svgElement : SVGSVGElement;
-    let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
     let dragStart: { startX: number; startY: number } | null = null;
+
+    viewBoxStore.subscribe(value => {
+        viewBox = value;
+    });
 
     // Start drag
     function handleMouseDown(event: MouseEvent) {
@@ -14,6 +19,7 @@
     function handleMouseMove(event: MouseEvent) {
         if (dragStart) {
             viewBox = onDrag(event, dragStart.startX, dragStart.startY, viewBox, svgElement);
+            viewBoxStore.set(viewBox);
             svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
         }
     }
@@ -24,11 +30,13 @@
 
     function handleWheel(event: WheelEvent) {
         viewBox = zoom(event, svgElement, viewBox);
+        viewBoxStore.set(viewBox);
         svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+
     }
 </script>
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<div on:wheel={handleWheel} on:mousedown={handleMouseDown} on:mousemove={handleMouseMove} on:mouseup={handleMouseUp} on:mouseleave={handleMouseUp} style="cursor: grab; user-select: none; outline: none;" aria-label="Interactive SVG Map" role="application">
+<div on:wheel={handleWheel} on:mousedown={handleMouseDown} on:mousemove={handleMouseMove} on:mouseup={handleMouseUp} on:mouseleave={handleMouseUp} class="cursor-grab select-none outline-none w-full h-full" aria-label="Interactive SVG Map" role="application">
     <svg bind:this={svgElement} baseProfile="tiny" fill="#ececec" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" xmlns="http://www.w3.org/2000/svg">
         <circle cx="997.9" cy="189.1" id="0">
         </circle>
