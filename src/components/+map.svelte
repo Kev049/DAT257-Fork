@@ -1,10 +1,19 @@
 <script lang="ts" context="module">
     import { zoom, type ViewBox, startDrag, onDrag } from '../scripts/zoom';
     import { viewBoxStore } from '../store/mapStore';
+    import { createHeatmapPoints, type DataPoint } from '../scripts/heatmap';
 
     export let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
     export let svgElement : SVGSVGElement;
     let dragStart: { startX: number; startY: number } | null = null;
+
+
+    let DataPoints: DataPoint[] = [];
+    let Ottawa: DataPoint = { latitude: 45.430262, longitude: -75.70746, solarEnergy: 1346.9};
+    let Stockholm: DataPoint = { latitude: 59.325, longitude: 18.05, solarEnergy: 1051.8};
+    DataPoints.push(Ottawa);
+    DataPoints.push(Stockholm);
+    
 
     viewBoxStore.subscribe(value => {
         viewBox = value;
@@ -13,6 +22,7 @@
     // Start drag
     function handleMouseDown(event: MouseEvent) {
         dragStart = startDrag(event);
+        createHeatmapPoints(DataPoints, svgElement)
     }
 
     // Handle dragging
@@ -32,9 +42,9 @@
         viewBox = zoom(event, svgElement, viewBox);
         viewBoxStore.set(viewBox);
         svgElement.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
-
     }
 </script>
+
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div on:wheel={handleWheel} on:mousedown={handleMouseDown} on:mousemove={handleMouseMove} on:mouseup={handleMouseUp} on:mouseleave={handleMouseUp} class="cursor-grab select-none outline-none w-full h-full" aria-label="Interactive SVG Map" role="application">
     <svg bind:this={svgElement} baseProfile="tiny" fill="#ececec" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width=".2" version="1.2" viewBox="0 0 2000 857" xmlns="http://www.w3.org/2000/svg">
