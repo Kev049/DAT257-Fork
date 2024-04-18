@@ -3,6 +3,7 @@ import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xS
 
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
+export let current_selected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
@@ -11,9 +12,9 @@ export function handleFormSubmit(event: Event) {
     
 }
 
-function toggleSidePanel(content: string): void {
+function toggleSidePanel(country: string, content: string): void {
     console.log(countries);
-    if (!get(sidepanelToggler) || content !== get(countryStore)) {
+    if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
         countryContentStore.set(content);
     }
@@ -41,7 +42,7 @@ function updateHighlights() {
         }
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-            toggleSidePanel(g.id);
+            //toggleSidePanel(g.id);
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
@@ -105,7 +106,6 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(true);
-                tooltipContent = closestGroup.id;
             }
         }
     }
@@ -123,19 +123,23 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
         tooltipToggler.set(false);
     }
 
-    function handleClick(event: MouseEvent) {
+    async function handleClick(event: MouseEvent) {
         if (event.target) {
             const target = event.target as Element;
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                toggleSidePanel(closestGroup.id);
+                console.log(closestGroup.id)
+                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`, {mode: 'no-cors'});
+                current_selected = await response.text();
+                console.log(current_selected);
+                toggleSidePanel(closestGroup.id ,current_selected);
             }
         }
     }
 
-    function toggleSidePanel(content: string): void {
-        if (!get(sidepanelToggler) || content !== get(countryStore)) {
+    function toggleSidePanel(country: string, content: string): void {
+        if (!get(sidepanelToggler) || country !== get(countryStore)) {
             sidepanelToggler.set(true);
             countryContentStore.set(content);
         }
