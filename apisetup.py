@@ -19,10 +19,10 @@ def main():
     latlongdf = pd.read_csv('latlong.csv', usecols=["Country","Latitude","Longitude"])
 
     for index, row in latlongdf.iterrows():
-        coordinates.append((row['Latitude'], row['Longitude'], row['Country'], 40))
+        coordinates.append((row['Latitude'], row['Longitude'], row['Country']))
 
     #print(latlongdf)
-    print(coordinates)
+    #print(coordinates)
     
     #return
     
@@ -35,23 +35,57 @@ def main():
     inverter = sapm_inverters['ABB__MICRO_0_25_I_OUTD_US_208__208V_']
     
     temperature_model_parameters = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']
-    tmys = []
+
+
+
+    #tmys = [] ##OLD TMYS DATA
+    #i = 0
+    #for location in coordinates:
+    #    latitude, longitude, name, altitude = location
+    #    print(name)
+    #    weather = pvlib.iotools.get_pvgis_tmy(latitude, longitude)[0]  #This line is the bottleneck
+    #    weather.index.name = "utc_time"
+    #    tmys.append(weather)
+    #
+    #    system = {'module': module, 'inverter': inverter,
+    #          'surface_azimuth': 180}
+    #    irradiance = pvlib.iotools.get_pvgis_hourly(latitude, longitude, start=2014, end=2015)[0]
+    #    print(weather['dni'].mean())
+    #    print('------------------------------------------yeet------------------')
+    #    print(irradiance['poa_direct'].mean())
+    #    return
+    #    'PVGIS-SARAH', 'PVGIS-NSRDB', 'PVGIS-ERA5', 'PVGIS-CMSAF', 'PVGIS-COSMO', 'PVGIS-SARAH2'
+    #    i += 1
+    
+    dbs = ['PVGIS-SARAH', 'PVGIS-NSRDB', 'PVGIS-ERA5', 'PVGIS-CMSAF', 'PVGIS-COSMO', 'PVGIS-SARAH2']
+    irridiance = []
     i = 0
     for location in coordinates:
-        latitude, longitude, name, altitude = location
+        latitude, longitude, name = location
         print(name)
-        weather = pvlib.iotools.get_pvgis_tmy(latitude, longitude)[0]  #This line is the bottleneck
-        weather.index.name = "utc_time"
-        tmys.append(weather)
+        for db in dbs:
+            try:
+                irr_data = pvlib.iotools.get_pvgis_hourly(latitude, longitude, start = 2014, end = 2015, raddatabase=db)[0]  #This line is the bottleneck
+                res = True
+                break
+            except:
+                res = False
+        if not res:
+            print(name + " FAILED LASDLAMSDÖLMASKDAMSKLDMAKLSDMALKS")
+        irr_data.index.name = "utc_time"
+        irridiance.append(irr_data['poa_direct'].mean())
     
         system = {'module': module, 'inverter': inverter,
               'surface_azimuth': 180}
-        
         i += 1
     
+    print(irridiance)
+    
+
     
     energies = {}
     
+    return
     for location, weather in zip(coordinates, tmys):
         latitude, longitude, name, altitude = location
         system['surface_tilt'] = latitude
@@ -103,54 +137,24 @@ def main():
         energies[name] = annual_energy
     
     
-    energies = pd.Series(energies)
+    #energies = pd.Series(energies)
     
     # based on the parameters specified above, these are in W*hrs
     
     # Don't know exactly what this means, per m^2? for the whole city? 
-    print(energies)
+    #print(energies)
     
-    energies.plot(kind='bar', rot=0)
+    #energies.plot(kind='bar', rot=0)
     
-    plt.ylabel('Yearly energy yield (W hr)')
-    plt.show()
+    #plt.ylabel('Yearly energy yield (W hr)')
+    #plt.show()
     
     #Skapa csv fil med land och average soleffekt (för att skapa heatmap)
     #använd latlong.csv för att hämta latlongpunkter där data om soleffekt ska hämtas, skapa ny csv enligt ovan
     #Skapa script som när man klickar på ett land hämtar detaljerad info om det från API:n
-    #"AR","Argentina",-34,-64 saved for later
     #Räknar ut wattimmar per år på en solcell vid koordinat
 
 
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-#"AD","Andorra",42.5,1.5
-#"AE","United Arab Emirates",24,54
-#"AF","Afghanistan",33,65
-#"AG","Antigua and Barbuda",17.05,-61.8
-#"AL","Albania",41,20
-#"AM","Armenia",40,45
-#"AO","Angola",-12.5,18.5
-#"AR","Argentina",-27.98,-57.9
-#"AT","Austria",47.33,13.33
-#"AU","Australia",-25.528460213639672, 114.75914403658423
-#"AW","Aruba",12.5,-69.97
-#"AZ","Azerbaijan",40.5,47.5
-#"BA","Bosnia and Herzegovina",44,18
-#"BB","Barbados",13.17,-59.53
-#"BD","Bangladesh",24,90
-#"BE","Belgium",50.83,4
-#"BF","Burkina Faso",13,-2
-#"BG","Bulgaria",43,25
-#"BH","Bahrain",26,50.55
-#"BI","Burundi",-3.5,30
-#"BJ","Benin",9.5,2.25
-#"BN","Brunei Darussalam",4.5,114.67
-#"BO","Bolivia",-17,-65
-#"BR","Brazil",-10,-55
