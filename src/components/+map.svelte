@@ -9,10 +9,20 @@
 
 
     let DataPoints: DataPoint[] = [];
-    let Ottawa: DataPoint = { latitude: 45.430262, longitude: -75.70746, solarEnergy: 1346.9};
-    let Stockholm: DataPoint = { latitude: 59.325, longitude: 18.05, solarEnergy: 1051.8};
+    const Ottawa: DataPoint = { latitude: 45.430262, longitude: -75.70746, solarEnergy: 1346.9};
+    const Stockholm: DataPoint = { latitude: 59.325, longitude: 18.05, solarEnergy: 1051.8};
+    const Gothenburg: DataPoint = { latitude: 57.708870, longitude: 11.974560, solarEnergy: 301.2}; 
+    const Beijing: DataPoint = { latitude: 39.916668, longitude: 116.383331, solarEnergy: 2000};
+    const Brasilia: DataPoint = { latitude: -15.793889, longitude: -47.882778, solarEnergy: 2400};
+    const CapeTown: DataPoint = { latitude: -33.918861, longitude: 18.423300, solarEnergy: 1300};
+    const Canberra: DataPoint = { latitude: -35.282001, longitude: 149.128998, solarEnergy: 3000};
+    DataPoints.push(Canberra);
+    DataPoints.push(CapeTown);
+    DataPoints.push(Brasilia);
     DataPoints.push(Ottawa);
+    DataPoints.push(Beijing);
     DataPoints.push(Stockholm);
+    DataPoints.push(Gothenburg);
     
 
     viewBoxStore.subscribe(value => {

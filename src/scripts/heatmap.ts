@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { viewBoxStore } from '../store/mapStore';
+import proj4 from 'proj4';
 
 export interface DataPoint {
     latitude: number;
@@ -17,25 +18,37 @@ interface SVGCoordinate {
     y: number;
 }
 
-const boundingBox = {
-    north: 80,
-    south: -90,
-    east: 180,
-    west: -180
-};
+proj4.defs("ROBINSON", "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
 
-function convertCoords(lat: number, lon: number, svgDimensions: SVGDimensions): SVGCoordinate {
-    const { north, south, east, west } = boundingBox;
+const wgs84 = 'EPSG:4326';
+const robinson = '+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs';  // Robinson projection string
+
+function convertCoordinates(lat: number, lon: number, svgDimensions: SVGDimensions): SVGCoordinate {
     const { width, height } = svgDimensions;
 
-    let x = ((lon - west) / (east - west)) * width;
-    let y = ((north - lat) / (north - south)) * height;
+    lon -= 2.5;
+
+    const minY = proj4(wgs84, robinson, [0, -60])[1];
+    const maxY = proj4(wgs84, robinson, [0, 85])[1];
+
+    // Transform coordinates
+    let [x, y] = proj4(wgs84, robinson, [lon, lat]);
+
+    const minX = proj4(wgs84, robinson, [-180, 0])[0];
+    const maxX = proj4(wgs84, robinson, [180, 0])[0];
+
+    const effectiveWidth = maxX - minX;
+    const effectiveHeight = maxY - minY;
+    const xScale = width / effectiveWidth;
+    const yScale = height / effectiveHeight;
+
+    x = (x - minX) * xScale;
+    y = height - ((y - minY) * yScale);  // Y-axis points down, have to adjust
 
     return { x, y };
 }
 
 function calculateIntensity(solarEnergy: number): number {
-    // Example normalization: Adjust as needed based on data range
     const maxEnergy = 3000;  // Max expected solar energy
     return Math.min(solarEnergy / maxEnergy, 1);
 }
@@ -43,13 +56,13 @@ function calculateIntensity(solarEnergy: number): number {
 export function createHeatmapPoints(data: DataPoint[], svgElement: SVGSVGElement): void {
     let svgDimensions: SVGDimensions = { width: get(viewBoxStore).width, height: get(viewBoxStore).height}
     data.forEach(point => {
-        const { x, y } = convertCoords(point.latitude, point.longitude, svgDimensions);
+        const { x, y } = convertCoordinates(point.latitude, point.longitude, svgDimensions);
         const intensity = calculateIntensity(point.solarEnergy);
 
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x.toString());
         circle.setAttribute("cy", y.toString());
-        circle.setAttribute("r", "5"); // Radius can be adjusted based on preference
+        circle.setAttribute("r", "5");
         circle.setAttribute("fill", `rgba(255, 0, 0, ${intensity})`); // Red with variable opacity
 
         svgElement.appendChild(circle);
