@@ -106,6 +106,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(true);
+                tooltipContent = closestGroup.id;
                 //kanske tog bort något här
             }
         }
