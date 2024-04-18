@@ -5,7 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm vavite-loader vite dev --port 5173",
             "name": "Launch SvelteKit server",
             "request": "launch",
             "type": "node-terminal"

@@ -5,8 +5,8 @@
 
     countryContentStore.subscribe(value => {
         countryContent = value;
-        console.log(value)
     });
+    console.log(countryContent);
 </script>
 
 
