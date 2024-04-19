@@ -1,6 +1,7 @@
 <script lang="ts">
     import { handleFormSubmit } from "../scripts/mapInteractions";
     import { countryStore } from '../store/mapStore';
+    let svgElement : SVGSVGElement;
 
     let selectedCountry : string = $countryStore;
 

@@ -4,7 +4,6 @@
 
 *{
     -ms-overflow-style: none;
-    scrollbar-width: none;
 }
   
 .html{
@@ -23,5 +22,6 @@
 
 path.highlight {
     stroke: #DB3638;
-    stroke-width: 0.2rem;
+    stroke-width: 0.05rem;
+    
 }

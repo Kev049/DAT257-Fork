@@ -1,5 +1,7 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { zoomToCountry } from './zoom';
+import { viewBox, svgElement } from '../components/+map.svelte';
 
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
@@ -7,9 +9,7 @@ export let current_selected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
-    console.log(countries);
     updateHighlights();
-    
 }
 
 function toggleSidePanel(country: string, content: string): void {
@@ -26,6 +26,7 @@ function toggleSidePanel(country: string, content: string): void {
 function updateHighlights() {
     // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
+
     groups.forEach(g => {
         g.querySelectorAll('path').forEach(path => {
             path.classList.remove('highlight');
@@ -35,20 +36,22 @@ function updateHighlights() {
     // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
         let translatedCountry = translateCountry(get(countryStore));
-        console.log(translatedCountry);
 
         if (translatedCountry === undefined) {
             return;
         }
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-            //toggleSidePanel(g.id);
+            // console.log(g.id)
+            // toggleSidePanel(g.id);
+            zoomToCountry(svgElement, viewBox, g.id)
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
         }
     });
 }
+
 
 // function translateCountry(input: string): string | undefined {
 //     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
