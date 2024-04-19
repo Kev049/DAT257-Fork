@@ -14,8 +14,8 @@ def query_data(country): # Returns a dataframe containing the country matching t
     #values = dataset[dataset['Country'].str.contains(fr'{country}', case=False)].reset_index().to_json(orient='records')
     formatted = (dataset[dataset['Country'].str.contains(fr'{country}', case=False)].reset_index()).transpose()
     dropped = formatted.iloc[1: , :]
-    htmlTable = dropped.to_html(classes='table')
-    return htmlTable
+    html_table = dropped.to_html(classes='table')
+    return html_table
 
 
 if __name__ == "__main__":
