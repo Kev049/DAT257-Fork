@@ -1,7 +1,7 @@
 from flask import Flask,jsonify,request
 from flask_cors import CORS
 import pandas as pd
-import numpy as np
+#import numpy as np
 
 app = Flask(__name__)
 CORS(app)
