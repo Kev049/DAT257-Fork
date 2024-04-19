@@ -18,7 +18,8 @@ def retrieve_irradiance_data(location):
     dbs = ['PVGIS-SARAH', 'PVGIS-NSRDB', 'PVGIS-ERA5', 'PVGIS-CMSAF', 'PVGIS-COSMO', 'PVGIS-SARAH2']
     for db in dbs:
         try:
-            irr_data = pvlib.iotools.get_pvgis_hourly(latitude, longitude, raddatabase=db)[0]
+            # start and end affect the size of the retrieved package, for fast execution keep them close
+            irr_data = pvlib.iotools.get_pvgis_hourly(latitude, longitude, start=2010, end=2015, raddatabase=db)[0]
             result = (irr_data, name, latitude, longitude)
             break
         except Exception as e:
@@ -33,8 +34,8 @@ def main():
     irridiance = []
     df = pd.DataFrame(columns=["irr_data", "name", "lat", "long"])
 
-    # Use ThreadPoolExecutor to limit the number of threads
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+    # Change max_morkers to change nr of parallel requests
+    with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
         # Use zip to iterate over coordinates and dbs simultaneously
         results = executor.map(retrieve_irradiance_data, coordinates)
 
