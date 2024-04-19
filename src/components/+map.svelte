@@ -16,6 +16,9 @@
     const Brasilia: DataPoint = { latitude: -15.793889, longitude: -47.882778, solarEnergy: 2400};
     const CapeTown: DataPoint = { latitude: -33.918861, longitude: 18.423300, solarEnergy: 1300};
     const Canberra: DataPoint = { latitude: -35.282001, longitude: 149.128998, solarEnergy: 3000};
+    const Copenhagen: DataPoint = { latitude: 55.676098, longitude: 12.568337, solarEnergy: 983.3}
+
+    DataPoints.push(Copenhagen);
     DataPoints.push(Canberra);
     DataPoints.push(CapeTown);
     DataPoints.push(Brasilia);
@@ -24,7 +27,6 @@
     DataPoints.push(Stockholm);
     DataPoints.push(Gothenburg);
     
-
     viewBoxStore.subscribe(value => {
         viewBox = value;
     });

@@ -26,7 +26,7 @@ const robinson = '+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 function convertCoordinates(lat: number, lon: number, svgDimensions: SVGDimensions): SVGCoordinate {
     const { width, height } = svgDimensions;
 
-    lon -= 2.5; // There is a slight offset in the map, might be bad to hard code the solution this way.
+    lon -= 3; // There is a slight offset in the map, might be bad to hard code the solution this way.
 
     const minY = proj4(wgs84, robinson, [0, -60])[1];
     const maxY = proj4(wgs84, robinson, [0, 85])[1];
