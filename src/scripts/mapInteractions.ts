@@ -142,16 +142,6 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
         }
     }
 
-    function toggleSidePanel(country: string, content: string): void {
-        if (!get(sidepanelToggler) || country !== get(countryStore)) {
-            sidepanelToggler.set(true);
-            countryContentStore.set(content);
-        }
-        else {
-            sidepanelToggler.set(false);
-        }
-    }
-
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
             sidepanelToggler.set(false);
