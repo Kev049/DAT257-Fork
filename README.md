@@ -1,4 +1,4 @@
-# Running the frontend
+# Running the application
 
 The website is made in HTML/CSS + Typescript using SvelteKit and Tailwind.
 ## Installation
