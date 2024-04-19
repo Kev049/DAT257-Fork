@@ -1,8 +1,8 @@
-interface CountryCodeMapTwoLetter {
+export interface CountryCodeMap {
   [code: string]: string;
 }
 
-const countryCodes: CountryCodeMapTwoLetter = {
+export const countryCodes: CountryCodeMap = {
   AF: 'Afghanistan',
   AX: 'AlandIslands',
   AL: 'Albania',
@@ -191,9 +191,7 @@ const countryCodes: CountryCodeMapTwoLetter = {
   SH: 'SaintHelena',
   KN: 'SaintKittsAndNevis',
   LC: 'SaintLucia',
-  MF
-
-: 'SaintMartin',
+  MF: 'SaintMartin',
   PM: 'SaintPierreAndMiquelon',
   VC: 'SaintVincentAndGrenadines',
   WS: 'Samoa',
