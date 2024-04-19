@@ -1,7 +1,6 @@
 # Running the application
 
-The website is made in HTML/CSS + Typescript using SvelteKit and Tailwind.
-We use a python API
+The website is made in HTML/CSS + Typescript using SvelteKit and Tailwind. In addition this, we use Python (along with several libraries/APIs) for the backend of the project.
 ## Installation
 The application can be run through npm. Install [Node.js](https://nodejs.org/en/download) and use the package manager 'npm' to install [Svelte](https://svelte.dev/docs/introduction) and [Tailwind](https://tailwindcss.com/docs/installation)
 
