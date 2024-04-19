@@ -36,7 +36,7 @@ def main():
     
     temperature_model_parameters = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']
 
-
+    failed = []
 
     #tmys = [] ##OLD TMYS DATA
     #i = 0
@@ -60,6 +60,7 @@ def main():
     dbs = ['PVGIS-SARAH', 'PVGIS-NSRDB', 'PVGIS-ERA5', 'PVGIS-CMSAF', 'PVGIS-COSMO', 'PVGIS-SARAH2']
     irridiance = []
     i = 0
+    df = pd.DataFrame(columns=["irr_data","name","lat","long"])
     for location in coordinates:
         latitude, longitude, name = location
         print(name)
@@ -67,23 +68,29 @@ def main():
             try:
                 irr_data = pvlib.iotools.get_pvgis_hourly(latitude, longitude, start = 2014, end = 2015, raddatabase=db)[0]  #This line is the bottleneck
                 res = True
+                df.loc[len(df)] = [irr_data, name, latitude, longitude]
                 break
             except:
                 res = False
         if not res:
+            failed.append(name)
             print(name + " FAILED LASDLAMSDÖLMASKDAMSKLDMAKLSDMALKS")
         irr_data.index.name = "utc_time"
         irridiance.append(irr_data['poa_direct'].mean())
     
         system = {'module': module, 'inverter': inverter,
               'surface_azimuth': 180}
+        #print(df)
         i += 1
     
     print(irridiance)
-    
+    df.to_csv()
 
     
     energies = {}
+
+    print(failed)
+    print(str(len(failed)))
     
     return
     for location, weather in zip(coordinates, tmys):
