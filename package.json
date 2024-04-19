@@ -29,6 +29,8 @@
   },
   "type": "module",
   "dependencies": {
-    "jsdom": "^24.0.0"
+    "@types/proj4": "^2.5.5",
+    "jsdom": "^24.0.0",
+    "proj4": "^2.11.0"
   }
 }
