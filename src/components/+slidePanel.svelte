@@ -1,12 +1,12 @@
 <script lang="ts">
     import { countryContentStore } from '../store/mapStore';
 
-    let countryContent: string = 'hej';
+    let countryContent: string = '';
 
     countryContentStore.subscribe(value => {
         countryContent = value;
     });
-    console.log(countryContent);
+    //console.log(countryContent);
 </script>
 
 
