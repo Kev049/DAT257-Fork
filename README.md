@@ -10,6 +10,7 @@ npm install
 ```
 ```bash
 npm install -D tailwindcss postcss autoprefixer
+npm install --save @types/proj4
 
 npx tailwindcss init -p
 
