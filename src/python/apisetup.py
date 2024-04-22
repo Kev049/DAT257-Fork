@@ -2,6 +2,8 @@ import pvlib
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# DO NOT USE FOR PRODUCTION
+
 def main():
     #Coordinates should take lat/long/country name from latlong.csv
     #coordinates = [

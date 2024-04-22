@@ -31,11 +31,10 @@ def retrieve_irradiance_data(location):
 
 # Main function to execute tasks
 def main():
-    irridiance = []
-    df = pd.DataFrame(columns=["irr_data", "name", "lat", "long"])
+    df = pd.DataFrame(columns=["name", "lat", "long", "irr_data"])
 
     # Change max_morkers to change nr of parallel requests
-    with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
         # Use zip to iterate over coordinates and dbs simultaneously
         results = executor.map(retrieve_irradiance_data, coordinates)
 
@@ -43,13 +42,13 @@ def main():
         for result in results:
             if result is not None:
                 irr_data, name, latitude, longitude = result
-                df.loc[len(df)] = [irr_data, name, latitude, longitude]
-                irr_data.index.name = "utc_time"
-                irridiance.append(irr_data['poa_direct'].mean())
+                df.loc[len(df)] = [name, latitude, longitude, irr_data['poa_direct'].mean()]
 
-    print("All tasks completed")
-    print(failed)
-    print("Amount failed: " + str(len(failed)))
+    #print("All tasks completed")
+    #print(failed)
+    #print("Amount failed: " + str(len(failed)))
+
+    df.to_csv("irr.csv")
 
 # Execute main function
 if __name__ == "__main__":
