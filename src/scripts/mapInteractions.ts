@@ -1,29 +1,98 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
+import { zoomToCountry } from './zoom';
+import { viewBox, svgElement } from '../components/+map.svelte';
 
 export let tooltipContent: string = '';
+export let countries: Set<string> = new Set<string>();
+export let current_selected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
     updateHighlights();
 }
 
+function toggleSidePanel(country: string, content: string): void {
+    console.log(countries);
+    if (!get(sidepanelToggler) || country !== get(countryStore)) {
+        sidepanelToggler.set(true);
+        countryContentStore.set(content);
+    }
+    else {
+        sidepanelToggler.set(false);
+    }
+}
+
 function updateHighlights() {
+    // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
+
     groups.forEach(g => {
         g.querySelectorAll('path').forEach(path => {
             path.classList.remove('highlight');
         });
     });
 
+    // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
+        let translatedCountry = translateCountry(get(countryStore));
+
+        if (translatedCountry === undefined) {
+            return;
+        }
         const paths = g.querySelectorAll('path');
-        if (g.id.toLowerCase() === get(countryStore).toLowerCase()) {
+        if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
+            // console.log(g.id)
+            // toggleSidePanel(g.id);
+            zoomToCountry(svgElement, viewBox, g.id)
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
         }
     });
+}
+
+
+
+function translateCountry(input: string): string | undefined {
+    let upperInput = input.toUpperCase(); 
+
+    // Check if input is two letter country code
+    if (upperInput in twoLetterCountryCodes) {
+        return twoLetterCountryCodes[upperInput];
+    }
+
+    // Check if inut is three letter country code
+    if (upperInput in threeLetterCountryCodes) {
+        return threeLetterCountryCodes[upperInput];
+    }
+
+    let lowerInput = upperInput.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    
+    // First check if input matches the start of any country string
+    for (const country of countries) {
+        if (country.toLowerCase().startsWith(lowerInput)) {
+            return country; // Return the matched country from the set
+        }
+    }
+
+    // If no match found at the start, use regex to find matches anywhere within country strings
+    const regex = new RegExp(lowerInput, 'i'); // Create case-insensitive regex pattern from input
+    for (const country of countries) {
+        if (regex.test(country.toLowerCase())) {
+            return country; // Return the matched country from the set
+        }
+    }
+
+    return undefined; // Return undefined if no match is found
+}
+
+export function initializeCountryMap() {
+    const groups = document.querySelectorAll("svg g");
+    groups.forEach(g => {
+        countries.add(g.id.toLowerCase())
+    })
 }
 
 export function setupMapInteractions(svgElement : SVGSVGElement) {
@@ -58,24 +127,18 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
         tooltipToggler.set(false);
     }
 
-    function handleClick(event: MouseEvent) {
+    async function handleClick(event: MouseEvent) {
         if (event.target) {
             const target = event.target as Element;
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                toggleSidePanel(closestGroup.id);
+                console.log(closestGroup.id)
+                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
+                current_selected = await response.text();
+                console.log(current_selected);
+                toggleSidePanel(closestGroup.id ,current_selected);
             }
-        }
-    }
-
-    function toggleSidePanel(content: string): void {
-        if (!get(sidepanelToggler) || content !== get(countryStore)) {
-            sidepanelToggler.set(true);
-            countryContentStore.set(content);
-        }
-        else {
-            sidepanelToggler.set(false);
         }
     }
 
