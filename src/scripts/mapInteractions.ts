@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
-import { countryCodes } from './countryCodes';
+import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
@@ -52,13 +52,20 @@ function updateHighlights() {
 
 
 function translateCountry(input: string): string | undefined {
-    let upperInput = input.toUpperCase(); // Convert input to lowercase for case-insensitive comparison
+    let upperInput = input.toUpperCase(); 
 
-    // Check if input is ISO 3166 country code
-    if (upperInput in countryCodes) {
-        return countryCodes[upperInput];
+    // Check if input is two letter country code
+    if (upperInput in twoLetterCountryCodes) {
+        return twoLetterCountryCodes[upperInput];
     }
-    let lowerInput = upperInput.toLowerCase();
+
+    // Check if inut is three letter country code
+    if (upperInput in threeLetterCountryCodes) {
+        return threeLetterCountryCodes[upperInput];
+    }
+
+    let lowerInput = upperInput.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    
     // First check if input matches the start of any country string
     for (const country of countries) {
         if (country.toLowerCase().startsWith(lowerInput)) {
