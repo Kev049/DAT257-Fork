@@ -11,13 +11,12 @@
 }
 
 .country > path{
-    fill: #FFF;
+    fill: #fefee4;
     transition: fill 200ms;
 }
 
 .country:hover > path{
-    fill: #DB3638;
-    transition: fill 400ms;
+    fill: #fefef9
 }
 
 path.highlight {

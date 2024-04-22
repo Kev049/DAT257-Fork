@@ -40,7 +40,7 @@
 
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center bg-[#5cb5e1] backdrop-blur-lg">
     <Nav></Nav>
-    <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen">
+    <div class="flex items-center justify-center bg-[#c8ebff] w-full h-screen">
         {#if showSidePanel}
             <SlidePanel></SlidePanel>
         {/if}
