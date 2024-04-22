@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 
@@ -53,23 +54,22 @@ function updateHighlights() {
 }
 
 
-// function translateCountry(input: string): string | undefined {
-//     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
-//     if (countries.has(lowerInput)) {
-//         return lowerInput; // Return the input as-is if it's already in the set
-//     } else {
-//         for (const country of countries) {
-//             if (country.startsWith(lowerInput)) {
-//                 return country; // Return the matched country from the set
-//             }
-//         }
-//     }
-//     return undefined; // Return undefined if no match is found
-// }
 
 function translateCountry(input: string): string | undefined {
-    const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    let upperInput = input.toUpperCase(); 
 
+    // Check if input is two letter country code
+    if (upperInput in twoLetterCountryCodes) {
+        return twoLetterCountryCodes[upperInput];
+    }
+
+    // Check if inut is three letter country code
+    if (upperInput in threeLetterCountryCodes) {
+        return threeLetterCountryCodes[upperInput];
+    }
+
+    let lowerInput = upperInput.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    
     // First check if input matches the start of any country string
     for (const country of countries) {
         if (country.toLowerCase().startsWith(lowerInput)) {
