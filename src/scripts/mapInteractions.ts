@@ -133,10 +133,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                console.log(closestGroup.id)
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
                 current_selected = await response.text();
-                console.log(current_selected);
                 toggleSidePanel(closestGroup.id ,current_selected);
             }
         }

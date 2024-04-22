@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { tooltipContent, setupMapInteractions, initializeCountryMap} from '../scripts/mapInteractions';
     import { tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
-    import { svgElement } from '../components/+map.svelte';
+    import { svgElement, intializeHeatmapPoits } from '../components/+map.svelte';
     import Map from '../components/+map.svelte';
     import Nav from '../components/+nav.svelte';
     import SlidePanel from '../components/+slidePanel.svelte';
@@ -16,6 +16,7 @@
 
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
+        intializeHeatmapPoits();
         initializeCountryMap();
         return cleanup;
     });
