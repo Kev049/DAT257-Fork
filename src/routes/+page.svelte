@@ -7,8 +7,6 @@
     import Nav from '../components/+nav.svelte';
     import SlidePanel from '../components/+slidePanel.svelte';
 
-    export let data;
-    
     let tooltipVisible: boolean = false;
     let tooltipX: number = 0;
     let tooltipY: number = 0;
@@ -38,8 +36,6 @@
     yStore.subscribe(value => {
         tooltipY = value;
     });
-
-    console.log(data);
 </script>
 
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center bg-[#5cb5e1] backdrop-blur-lg">

@@ -2,7 +2,6 @@
     import { zoom, type ViewBox, startDrag, onDrag } from '../scripts/zoom';
     import { viewBoxStore } from '../store/mapStore';
     import { createHeatmapPoints, fetchCSVData } from '../scripts/heatmap';
-    import { onMount } from 'svelte';
     export let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
     export let svgElement : SVGSVGElement;
     let dragStart: { startX: number; startY: number } | null = null;
