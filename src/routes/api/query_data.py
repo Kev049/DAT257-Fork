@@ -1,4 +1,4 @@
-from flask import Flask,jsonify,request,flash,redirect,url_for
+from flask import Flask,jsonify,request,flash,redirect,url_for, render_template
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -22,7 +22,7 @@ def query_data(country): # Returns a dataframe containing the country matching t
     html_table = dropped.to_html(classes='table')
     return html_table
 
-@app.route("/chart/<country>", methods=['GET', 'POST'])
+@app.route("/chart/<country>", methods=['POST'])
 def get_plot(country):
     dataset = pd.read_csv('python/clumped_data.csv')
     energy_doc = (dataset[dataset['Country'].str.match(fr'{country}', case=False)])
@@ -33,7 +33,7 @@ def get_plot(country):
     ax.pie(values)
     fig.legend(labels=labels, loc='upper right', bbox_to_anchor=(0.1,1))
     fig.savefig('static/country_graph.png', bbox_inches='tight', pad_inches=1)
-    return country
+    return render_template()
     
 
 
