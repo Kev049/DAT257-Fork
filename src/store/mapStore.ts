@@ -14,3 +14,4 @@ export let viewBoxStore: Writable<ViewBox> = writable({
     width: 2000,
     height: 857
 });
+export let imageStore = writable("/country_graph.png");

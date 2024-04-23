@@ -2,6 +2,8 @@ import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
+import { updated } from '$app/stores';
+import { imageStore } from '../store/mapStore';
 
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
@@ -95,6 +97,10 @@ export function initializeCountryMap() {
     })
 }
 
+function updateImage(): void{
+    imageStore.set("http://localhost:5173/country_graph.png#" + new Date().getTime());
+}
+
 export function setupMapInteractions(svgElement : SVGSVGElement) {
     svgElement.addEventListener('mouseover', handleMouseOver);
     svgElement.addEventListener('mousemove', handleMouseMove);
@@ -135,7 +141,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
                 tooltipToggler.set(!get(tooltipToggler));
                 console.log(closestGroup.id)
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
-                const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
+                const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`);
+                updateImage();
                 current_selected = await response.text();
                 console.log(current_selected);
                 toggleSidePanel(closestGroup.id ,current_selected);
