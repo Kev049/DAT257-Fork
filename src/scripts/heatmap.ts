@@ -1,4 +1,4 @@
-import { select, scaleSequential, interpolatePlasma, axisRight, scaleLinear  } from 'd3';
+import { select, scaleSequential, interpolatePlasma, axisRight, scaleLinear, contourDensity, geoPath, line } from 'd3';
 import proj4 from 'proj4';
 import { csv } from 'd3-fetch';
 
@@ -68,63 +68,79 @@ function convertCoordinates(lat: number, lon: number, svgDimensions: SVGDimensio
 export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[], maxRadiation: number): Promise<void> {
     const svgDimensions: SVGDimensions = { width: svgElement.viewBox.baseVal.width, height: svgElement.viewBox.baseVal.height };
 
-    const colorScale = scaleSequential(interpolatePlasma).domain([0, maxRadiation]);
+    // Generate contours
+    const lineGenerator = line<DataPoint>()
+    .x(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
+    .y(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y);
 
-    const defs = select(svgElement).append('defs');
-    const filter = defs.append('filter').attr('id', 'blur');
-    filter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', 1);
+    select(svgElement).append('path')
+        .datum(data)  // Use .data(data) if creating multiple lines
+        .attr('d', lineGenerator)
+        .attr('fill', 'none')
+        .attr('stroke', 'red');
 
-    select(svgElement).selectAll('circle')
-        .data(data)
-        .enter().append('circle')
-        .attr('cx', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
-        .attr('cy', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y)
-        .attr('r', d => 3 + (10 * (d.radiation / maxRadiation)))
-        .style('fill', d => colorScale(d.radiation))
-        .style('opacity', 0.6) 
-        .attr('filter', 'url(#blur)') 
-        .attr('pointer-events', 'none');
-
-    // Color bar setup
-    const colorBarWidth = 30;
-    const colorBarHeight = 120;
-    const margin = { top: 30, right: 30, bottom: window.innerHeight - 200, left: window.innerWidth };
-    const colorBarX = svgDimensions.width - margin.left - colorBarWidth;
-    const colorBarY = margin.bottom;
-
-    // Gradient definition
-    const gradient = defs.append('linearGradient')
-        .attr('id', 'gradient')
-        .attr('x1', '0%')
-        .attr('x2', '0%')
-        .attr('y1', '100%')
-        .attr('y2', '0%');
-    
-    // Manual ticks for color stops
-    const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => t * maxRadiation);
-    ticks.forEach((t, i, a) => {
-        gradient.append('stop')
-            .attr('offset', `${100 * i / (a.length - 1)}%`)
-            .attr('stop-color', colorScale(t));
-    });
-
-    // Draw the color bar
-    select(svgElement).append('rect')
-        .attr('x', colorBarX)
-        .attr('y', colorBarY)
-        .attr('width', colorBarWidth)
-        .attr('height', colorBarHeight)
-        .style('fill', 'url(#gradient)');
-
-    // Add color bar labels
-    const barScale = scaleLinear()
-        .range([colorBarHeight, 0])
-        .domain([0, maxRadiation]);
-
-    const axis = axisRight(barScale).ticks(5);
-    select(svgElement)
-        .append('g')
-        .attr('transform', `translate(${colorBarX + colorBarWidth}, ${colorBarY})`)
-        .call(axis);
+    // Reuse the existing color bar code from the original heatmap function
 }
+// export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[], maxRadiation: number): Promise<void> {
+//     const svgDimensions: SVGDimensions = { width: svgElement.viewBox.baseVal.width, height: svgElement.viewBox.baseVal.height };
+
+//     const colorScale = scaleSequential(interpolatePlasma).domain([0, maxRadiation]);
+
+//     const defs = select(svgElement).append('defs');
+//     const filter = defs.append('filter').attr('id', 'blur');
+//     filter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', 1);
+
+//     select(svgElement).selectAll('circle')
+//         .data(data)
+//         .enter().append('circle')
+//         .attr('cx', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
+//         .attr('cy', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y)
+//         .attr('r', d => 3 + (10 * (d.radiation / maxRadiation)))
+//         .style('fill', d => colorScale(d.radiation))
+//         .style('opacity', 0.6) 
+//         .attr('filter', 'url(#blur)') 
+//         .attr('pointer-events', 'none');
+
+//     // Color bar setup
+//     const colorBarWidth = 30;
+//     const colorBarHeight = 120;
+//     const margin = { top: 30, right: 30, bottom: window.innerHeight - 200, left: window.innerWidth };
+//     const colorBarX = svgDimensions.width - margin.left - colorBarWidth;
+//     const colorBarY = margin.bottom;
+
+//     // Gradient definition
+//     const gradient = defs.append('linearGradient')
+//         .attr('id', 'gradient')
+//         .attr('x1', '0%')
+//         .attr('x2', '0%')
+//         .attr('y1', '100%')
+//         .attr('y2', '0%');
+    
+//     // Manual ticks for color stops
+//     const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => t * maxRadiation);
+//     ticks.forEach((t, i, a) => {
+//         gradient.append('stop')
+//             .attr('offset', `${100 * i / (a.length - 1)}%`)
+//             .attr('stop-color', colorScale(t));
+//     });
+
+//     // Draw the color bar
+//     select(svgElement).append('rect')
+//         .attr('x', colorBarX)
+//         .attr('y', colorBarY)
+//         .attr('width', colorBarWidth)
+//         .attr('height', colorBarHeight)
+//         .style('fill', 'url(#gradient)');
+
+//     // Add color bar labels
+//     const barScale = scaleLinear()
+//         .range([colorBarHeight, 0])
+//         .domain([0, maxRadiation]);
+
+//     const axis = axisRight(barScale).ticks(5);
+//     select(svgElement)
+//         .append('g')
+//         .attr('transform', `translate(${colorBarX + colorBarWidth}, ${colorBarY})`)
+//         .call(axis);
+// }
 
