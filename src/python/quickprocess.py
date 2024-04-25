@@ -29,16 +29,14 @@ def retrieve_irradiance_data(location):
         print(f"Failed to retrieve data for {name}")
     return result
 
-# Main function to execute tasks
 def main():
     df = pd.DataFrame(columns=["name", "lat", "long", "irr_data"])
 
     # Change max_morkers to change nr of parallel requests
     with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
-        # Use zip to iterate over coordinates and dbs simultaneously
+
         results = executor.map(retrieve_irradiance_data, coordinates)
 
-        # Process the results as they become available
         for result in results:
             if result is not None:
                 irr_data, name, latitude, longitude = result
