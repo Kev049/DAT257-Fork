@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, xStore, yStore} from '../store/mapStore';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 import { updated } from '$app/stores';
@@ -14,11 +14,12 @@ export function handleFormSubmit(event: Event) {
     updateHighlights();
 }
 
-function toggleSidePanel(country: string, content: string): void {
+function toggleSidePanel(country: string, content: string, graph: string): void {
     console.log(countries);
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
         countryContentStore.set(content);
+        countryGraphStore.set(graph)
     }
     else {
         sidepanelToggler.set(false);
@@ -138,27 +139,28 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const target = event.target as Element;
             const closestGroup = target.closest('g');
             if (closestGroup) {
+                //sidepanelToggler.set(false)
                 tooltipToggler.set(!get(tooltipToggler));
                 console.log(closestGroup.id)
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
                 const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`);
-                updateImage();
                 current_selected = await response.text();
-                console.log(current_selected);
-                toggleSidePanel(closestGroup.id ,current_selected);
+                let graph = await image.text();
+                toggleSidePanel(closestGroup.id, current_selected, graph);
             }
         }
     }
 
-    function toggleSidePanel(country: string, content: string): void {
-        if (!get(sidepanelToggler) || country !== get(countryStore)) {
-            sidepanelToggler.set(true);
-            countryContentStore.set(content);
-        }
-        else {
-            sidepanelToggler.set(false);
-        }
-    }
+    // function toggleSidePanel(country: string, content: string, graph: string): void {
+    //     if (!get(sidepanelToggler) || country !== get(countryStore)) {
+    //         sidepanelToggler.set(true);
+    //         countryContentStore.set(content);
+    //         //countryGraphStore.set(graph)
+    //     }
+    //     else {
+    //         sidepanelToggler.set(false);
+    //     }
+    // }
 
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {

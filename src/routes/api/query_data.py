@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
+HTML_TEMPLATE = '<img src="country_graph.png" alt="Country graph" width="500" height="400">'
+
 matplotlib.use('Agg')
 import math as ma
 
@@ -22,7 +24,7 @@ def query_data(country): # Returns a dataframe containing the country matching t
     html_table = dropped.to_html(classes='table')
     return html_table
 
-@app.route("/chart/<country>", methods=['POST'])
+@app.route("/chart/<country>", methods=['GET','POST'])
 def get_plot(country):
     dataset = pd.read_csv('python/clumped_data.csv')
     energy_doc = (dataset[dataset['Country'].str.match(fr'{country}', case=False)])
@@ -32,10 +34,13 @@ def get_plot(country):
     fig,ax = plt.subplots()
     ax.pie(values)
     fig.legend(labels=labels, loc='upper right', bbox_to_anchor=(0.1,1))
-    fig.savefig('static/country_graph.png', bbox_inches='tight', pad_inches=1)
-    return render_template()
+    fig.savefig(f'static/{country}.png', bbox_inches='tight', pad_inches=1)
+    content = HTML_TEMPLATE
+    content = content.replace('country_graph', country)
+    return content
     
 
 
 if __name__ == "__main__":
+    #print(get_plot('Sweden'))
     app.run()
