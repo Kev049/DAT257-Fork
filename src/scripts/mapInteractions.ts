@@ -135,7 +135,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
                 tooltipToggler.set(!get(tooltipToggler));
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
                 current_selected = await response.text();
-                toggleSidePanel(closestGroup.id, current_selected);
+                toggleSidePanel(closestGroup.id ,current_selected);
             }
         }
     }
