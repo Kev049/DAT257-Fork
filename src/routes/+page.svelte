@@ -2,13 +2,11 @@
     import { onMount } from 'svelte';
     import { tooltipContent, setupMapInteractions, initializeCountryMap} from '../scripts/mapInteractions';
     import { tooltipToggler, sidepanelToggler, xStore, yStore } from '../store/mapStore';
-    import { svgElement } from '../components/+map.svelte';
+    import { svgElement, intializeHeatmapPoits } from '../components/+map.svelte';
     import Map from '../components/+map.svelte';
     import Nav from '../components/+nav.svelte';
     import SlidePanel from '../components/+slidePanel.svelte';
 
-    export let data;
-    
     let tooltipVisible: boolean = false;
     let tooltipX: number = 0;
     let tooltipY: number = 0;
@@ -16,6 +14,7 @@
 
     onMount(() => {
         const cleanup = setupMapInteractions(svgElement);
+        intializeHeatmapPoits();
         initializeCountryMap();
         return cleanup;
     });
@@ -37,13 +36,11 @@
     yStore.subscribe(value => {
         tooltipY = value;
     });
-
-    console.log(data);
 </script>
 
 <div class="flex flex-col w-100 h-auto max-h-full overflow-hidden overscroll-contain items-center justify-center bg-[#5cb5e1] backdrop-blur-lg">
     <Nav></Nav>
-    <div class="flex items-center justify-center bg-[#5cb5e1] w-full h-screen">
+    <div class="flex items-center justify-center bg-[#c8ebff] w-full h-screen">
         {#if showSidePanel}
             <SlidePanel></SlidePanel>
         {/if}

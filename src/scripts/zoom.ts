@@ -36,7 +36,6 @@ export function onDrag(event: MouseEvent, startX: number, startY: number, viewBo
 
     viewBox.x += dx;
     viewBox.y += dy;
-
     return viewBox;
 }
 

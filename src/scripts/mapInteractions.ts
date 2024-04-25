@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, xStore, yStore} from '../store/mapStore';
+import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 import { updated } from '$app/stores';
@@ -56,23 +57,22 @@ function updateHighlights() {
 }
 
 
-// function translateCountry(input: string): string | undefined {
-//     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
-//     if (countries.has(lowerInput)) {
-//         return lowerInput; // Return the input as-is if it's already in the set
-//     } else {
-//         for (const country of countries) {
-//             if (country.startsWith(lowerInput)) {
-//                 return country; // Return the matched country from the set
-//             }
-//         }
-//     }
-//     return undefined; // Return undefined if no match is found
-// }
 
 function translateCountry(input: string): string | undefined {
-    const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    let upperInput = input.toUpperCase(); 
 
+    // Check if input is two letter country code
+    if (upperInput in twoLetterCountryCodes) {
+        return twoLetterCountryCodes[upperInput];
+    }
+
+    // Check if inut is three letter country code
+    if (upperInput in threeLetterCountryCodes) {
+        return threeLetterCountryCodes[upperInput];
+    }
+
+    let lowerInput = upperInput.toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+    
     // First check if input matches the start of any country string
     for (const country of countries) {
         if (country.toLowerCase().startsWith(lowerInput)) {
@@ -141,7 +141,6 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             if (closestGroup) {
                 //sidepanelToggler.set(false)
                 tooltipToggler.set(!get(tooltipToggler));
-                console.log(closestGroup.id)
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
                 const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`);
                 current_selected = await response.text();
@@ -150,17 +149,6 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             }
         }
     }
-
-    // function toggleSidePanel(country: string, content: string, graph: string): void {
-    //     if (!get(sidepanelToggler) || country !== get(countryStore)) {
-    //         sidepanelToggler.set(true);
-    //         countryContentStore.set(content);
-    //         //countryGraphStore.set(graph)
-    //     }
-    //     else {
-    //         sidepanelToggler.set(false);
-    //     }
-    // }
 
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
