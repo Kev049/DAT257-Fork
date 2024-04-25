@@ -10,7 +10,7 @@ def main(wind_direction_displayed):
 
     # Dataset downloaded from https://cds.climate.copernicus.eu/#!/home
     # Wind velocity data for all avaialble coordinates on the 1st April, 2023
-    data = xr.open_dataset('ERA5-mean-world.nc')
+    data = xr.open_dataset('python/wind-speed/ERA5-mean-world.nc')
 
     lat = data.latitude
     # data.longitude seems to be between 0 and 360, converting to -180 to 180 
