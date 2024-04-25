@@ -1,16 +1,16 @@
 import { get } from 'svelte/store';
-import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, xStore, yStore} from '../store/mapStore';
+import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, sidePanelUpdateStore, xStore, yStore} from '../store/mapStore';
 import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 import { updated } from '$app/stores';
 import { imageStore } from '../store/mapStore';
 
-export let waitingTable = true;
-export let waitingImage = true;
+export let currentTable = '';
+export let currentImage = '';
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
-export let current_selected: string = '';
+export let currentSelected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
@@ -18,11 +18,11 @@ export function handleFormSubmit(event: Event) {
 }
 
 function toggleSidePanel(country: string, content: string, graph: string): void {
-    console.log(countries);
+    countryContentStore.set(content);
+    countryGraphStore.set(graph)
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
-        countryContentStore.set(content);
-        countryGraphStore.set(graph)
+        sidePanelUpdateStore.set(true)
     }
     else {
         sidepanelToggler.set(false);
@@ -141,21 +141,16 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const target = event.target as Element;
             const closestGroup = target.closest('g');
             if (closestGroup) {
-                //sidepanelToggler.set(false)
                 tooltipToggler.set(!get(tooltipToggler));
-                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`)
-                                        .then(response => {waitingTable = false;
-                                                            return response;});
-                const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
-                                        .then(image => {waitingImage = false;
-                                                        return image;});
-                current_selected = await response.text();
-                let graph = await image.text();
-                while (!waitingTable && !waitingImage){
-                    toggleSidePanel(closestGroup.id, current_selected, graph);
-                    waitingTable = true;
-                    waitingImage = true;
-                }    
+                let table = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`)
+                                        .then(response => {return response.text();});
+                let image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
+                                        .then(image => {return image.text();});
+                currentTable = table;
+                currentImage = image;
+                currentSelected = table;
+                console.log(table)
+                toggleSidePanel(closestGroup.id, table, image);
             }
         }
     }

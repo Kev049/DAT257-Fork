@@ -1,8 +1,16 @@
-<script lang="ts" context="module">
-    import { countryContentStore, imageStore, countryGraphStore } from '../store/mapStore';
+<script lang="ts">
+    import { countryContentStore, imageStore, countryGraphStore, sidePanelUpdateStore } from '../store/mapStore';
+    import { onMount } from 'svelte'
+    import { currentImage, currentTable } from '../scripts/mapInteractions';
 
-    let countryContent: string = '';
-    let countryGraph: string = '';
+    onMount(() => {
+        countryContent = currentTable; 
+        countryGraph = currentImage;
+    });
+
+
+    $: countryContent = 'Hej';
+    $: countryGraph = 'Da';
     let src: string;
     
     countryContentStore.subscribe(value => {

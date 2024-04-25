@@ -5,6 +5,7 @@ import type { ViewBox } from "../scripts/zoom";
 export let countryStore = writable('');
 export let tooltipToggler = writable(false);
 export let sidepanelToggler = writable(false);
+export let sidePanelUpdateStore = writable(false);
 export let countryContentStore = writable('');
 export let countryGraphStore = writable('');
 export let xStore = writable(0);

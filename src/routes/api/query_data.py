@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-HTML_TEMPLATE = '<img src="country_graph.png" alt="Country graph" width="500" height="400">'
+HTML_TEMPLATE = '<img src="country_graph.png" alt="Country graph" width="800" height="600">'
 
 matplotlib.use('Agg')
 import math as ma
