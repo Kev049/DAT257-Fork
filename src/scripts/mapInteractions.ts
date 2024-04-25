@@ -6,6 +6,8 @@ import { viewBox, svgElement } from '../components/+map.svelte';
 import { updated } from '$app/stores';
 import { imageStore } from '../store/mapStore';
 
+export let waitingTable = true;
+export let waitingImage = true;
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
 export let current_selected: string = '';
@@ -141,11 +143,19 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             if (closestGroup) {
                 //sidepanelToggler.set(false)
                 tooltipToggler.set(!get(tooltipToggler));
-                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
-                const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`);
+                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`)
+                                        .then(response => {waitingTable = false;
+                                                            return response;});
+                const image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
+                                        .then(image => {waitingImage = false;
+                                                        return image;});
                 current_selected = await response.text();
                 let graph = await image.text();
-                toggleSidePanel(closestGroup.id, current_selected, graph);
+                while (!waitingTable && !waitingImage){
+                    toggleSidePanel(closestGroup.id, current_selected, graph);
+                    waitingTable = true;
+                    waitingImage = true;
+                }    
             }
         }
     }
