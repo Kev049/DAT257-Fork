@@ -35,25 +35,23 @@ function updateHighlights() {
     });
 
     // Add highlight to correct country if there is one and toggle sidepanel
-    groups.forEach(g => {
-        let translatedCountry = translateCountry(get(countryStore));
-
-        if (translatedCountry === undefined) {
-            return;
-        }
-        const paths = g.querySelectorAll('path');
-        if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-            // console.log(g.id)
-            // toggleSidePanel(g.id);
-            zoomToCountry(svgElement, viewBox, g.id)
-            paths.forEach(path => {
-                path.classList.add('highlight');
-            });
-        }
-    });
+    if(get(countryStore) !== ""){
+        groups.forEach(g => {
+            let translatedCountry = translateCountry(get(countryStore));
+    
+            if (translatedCountry === undefined) {
+                return;
+            }
+            const paths = g.querySelectorAll('path');
+            if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
+                zoomToCountry(svgElement, viewBox, g.id)
+                paths.forEach(path => {
+                    path.classList.add('highlight');
+                });
+            }
+        });
+    }
 }
-
-
 
 function translateCountry(input: string): string | undefined {
     let upperInput = input.toUpperCase(); 
@@ -151,6 +149,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
         if (!target?.closest('g')) {
             if (get(sidepanelToggler)) {
                 sidepanelToggler.set(false);
+                countryStore.set("");
+                updateHighlights();
             }
         }
     }
