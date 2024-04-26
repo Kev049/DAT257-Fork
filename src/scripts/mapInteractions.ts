@@ -1,23 +1,28 @@
 import { get } from 'svelte/store';
-import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, sidePanelUpdateStore, xStore, yStore} from '../store/mapStore';
 import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
+import { updated } from '$app/stores';
+import { imageStore } from '../store/mapStore';
 
+export let currentTable = '';
+export let currentImage = '';
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
-export let current_selected: string = '';
+export let currentSelected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
     updateHighlights();
 }
 
-function toggleSidePanel(country: string, content: string): void {
-    console.log(countries);
+function toggleSidePanel(country: string, content: string, graph: string): void {
+    countryContentStore.set(content);
+    countryGraphStore.set(graph)
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
-        countryContentStore.set(content);
+        sidePanelUpdateStore.set(true)
     }
     else {
         sidepanelToggler.set(false);
@@ -96,6 +101,10 @@ export function initializeCountryMap() {
     })
 }
 
+function updateImage(): void{
+    imageStore.set("http://localhost:5173/country_graph.png#" + new Date().getTime());
+}
+
 export function setupMapInteractions(svgElement : SVGSVGElement) {
     svgElement.addEventListener('mouseover', handleMouseOver);
     svgElement.addEventListener('mousemove', handleMouseMove);
@@ -134,9 +143,15 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
-                current_selected = await response.text();
-                toggleSidePanel(closestGroup.id, current_selected);
+                let table = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`)
+                                        .then(response => {return response.text();});
+                let image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
+                                        .then(image => {return image.text();});
+                currentTable = table;
+                currentImage = image;
+                currentSelected = table;
+                console.log(table)
+                toggleSidePanel(closestGroup.id, table, image);
                 countryStore.set(closestGroup.id)
                 updateHighlights();
             }
