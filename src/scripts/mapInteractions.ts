@@ -28,29 +28,32 @@ function updateHighlights() {
     // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
 
+    removeHighlights();
+
+    // Add highlight to correct country if there is one and toggle sidepanel
+    groups.forEach(g => {
+        let translatedCountry = translateCountry(get(countryStore));
+
+        if (translatedCountry === undefined) {
+            return;
+        }
+        const paths = g.querySelectorAll('path');
+        if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
+            zoomToCountry(svgElement, viewBox, g.id)
+            paths.forEach(path => {
+                path.classList.add('highlight');
+            });
+        }
+    });
+}
+
+function removeHighlights(){
+    const groups = document.querySelectorAll('svg g');
     groups.forEach(g => {
         g.querySelectorAll('path').forEach(path => {
             path.classList.remove('highlight');
         });
     });
-
-    // Add highlight to correct country if there is one and toggle sidepanel
-    if(get(countryStore) !== ""){
-        groups.forEach(g => {
-            let translatedCountry = translateCountry(get(countryStore));
-    
-            if (translatedCountry === undefined) {
-                return;
-            }
-            const paths = g.querySelectorAll('path');
-            if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-                zoomToCountry(svgElement, viewBox, g.id)
-                paths.forEach(path => {
-                    path.classList.add('highlight');
-                });
-            }
-        });
-    }
 }
 
 function translateCountry(input: string): string | undefined {
@@ -133,7 +136,9 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
                 tooltipToggler.set(!get(tooltipToggler));
                 const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
                 current_selected = await response.text();
-                toggleSidePanel(closestGroup.id ,current_selected);
+                toggleSidePanel(closestGroup.id, current_selected);
+                countryStore.set(closestGroup.id)
+                updateHighlights();
             }
         }
     }
@@ -141,6 +146,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
             sidepanelToggler.set(false);
+            removeHighlights();
         }
     }
 
@@ -149,9 +155,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
         if (!target?.closest('g')) {
             if (get(sidepanelToggler)) {
                 sidepanelToggler.set(false);
-                countryStore.set("");
-                updateHighlights();
             }
+            removeHighlights();
         }
     }
 
