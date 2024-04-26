@@ -9,9 +9,7 @@
 
     export async function initialiseHeatmapPoints(){
         const data = await fetchCSVData();
-        const points = data[0]
-        const maxRadiation = data[1]
-        renderHeatmap(svgElement, points, maxRadiation);
+        renderHeatmap(svgElement, data);
     }
     
     viewBoxStore.subscribe(value => {

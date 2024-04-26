@@ -1,4 +1,4 @@
-import { select, scaleSequential, interpolatePlasma, axisRight, scaleLinear, contourDensity, geoPath, line } from 'd3';
+import { select, scaleSequential, contourDensity, geoPath, interpolateInferno } from 'd3';
 import proj4 from 'proj4';
 import { csv } from 'd3-fetch';
 
@@ -18,7 +18,7 @@ interface SVGCoordinate {
     y: number;
 }
 
-export async function fetchCSVData(): Promise<[DataPoint[], number]> {
+export async function fetchCSVData(): Promise<DataPoint[]> {
     const url: string = "src/python/heat.csv"
     try {
         const data: DataPoint[] = await csv(url, (d: any) => ({
@@ -26,12 +26,10 @@ export async function fetchCSVData(): Promise<[DataPoint[], number]> {
             longitude: +d.long,
             radiation: +d.irr_data
         }));
-
-        const maxRadiation = data.reduce((max, p) => p.radiation > max ? p.radiation : max, data[0].radiation);
-        return [data, maxRadiation];
+        return data;
     } catch (error) {
         console.error('Error fetching or parsing CSV data:', error);
-        return [[], 0];
+        return [];
     }
 }
 // Using proj4js to project geographical coordinates using Robinson projection. 
@@ -64,47 +62,30 @@ function convertCoordinates(lat: number, lon: number, svgDimensions: SVGDimensio
     return { x, y };
 }
 
-// I use the D3 library to render the circles according to the radiation level.
-export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[], maxRadiation: number): Promise<void> {
+// I use the D3 library to render a contour density map according to the radiation level.
+export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[]): Promise<void> {
     const svgDimensions: SVGDimensions = { width: svgElement.viewBox.baseVal.width, height: svgElement.viewBox.baseVal.height };
 
-    const colorScale = scaleSequential(interpolatePlasma).domain([0, maxRadiation]);
-
     const contours = contourDensity<DataPoint>()
-        .x(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
+        .x(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x) //Coordinates that convert to proj4 and then to SVG
         .y(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y)
+        .weight(d => d.radiation)
         .size([svgDimensions.width, svgDimensions.height])
-        .bandwidth(20)  // Adjust this parameter to change smoothness
+        .bandwidth(10)  
         (data);
 
-    const paths = select(svgElement).selectAll('path')
+    const maxContourValue: number = Math.max(...contours.map(c=> c.value))
+
+    const colorScale = scaleSequential(interpolateInferno).domain([0, maxContourValue]);
+
+    const heatmapGroup = select(svgElement).append('g').attr('id', 'heatmapGroup');
+    heatmapGroup.selectAll('path')
         .data(contours)
         .enter().append('path')
         .attr('d', geoPath())
         .attr('fill', d => colorScale(d.value))
-        .style('opacity', 0.8);
-
-    // If you want to keep the blur effect, you can define a filter in defs and apply it to paths
+        .attr('pointer-events', 'none')
+        .style('opacity', 0.15);
 }
 
-// export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[], maxRadiation: number): Promise<void> {
-//     const svgDimensions: SVGDimensions = { width: svgElement.viewBox.baseVal.width, height: svgElement.viewBox.baseVal.height };
-
-//     const colorScale = scaleSequential(interpolatePlasma).domain([0, maxRadiation]);
-
-//     const defs = select(svgElement).append('defs');
-//     const filter = defs.append('filter').attr('id', 'blur');
-//     filter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', 1);
-
-//     select(svgElement).selectAll('circle')
-//         .data(data)
-//         .enter().append('circle')
-//         .attr('cx', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
-//         .attr('cy', d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y)
-//         .attr('r', d => 12)
-//         .style('fill', d => colorScale(d.radiation))
-//         .style('opacity', 0.2) 
-//         .attr('filter', 'url(#blur)') 
-//         .attr('pointer-events', 'none');
-// }
 
