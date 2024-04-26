@@ -33,11 +33,7 @@ function updateHighlights() {
     // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
 
-    groups.forEach(g => {
-        g.querySelectorAll('path').forEach(path => {
-            path.classList.remove('highlight');
-        });
-    });
+    removeHighlights();
 
     // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
@@ -48,8 +44,6 @@ function updateHighlights() {
         }
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-            // console.log(g.id)
-            // toggleSidePanel(g.id);
             zoomToCountry(svgElement, viewBox, g.id)
             paths.forEach(path => {
                 path.classList.add('highlight');
@@ -58,7 +52,14 @@ function updateHighlights() {
     });
 }
 
-
+function removeHighlights(){
+    const groups = document.querySelectorAll('svg g');
+    groups.forEach(g => {
+        g.querySelectorAll('path').forEach(path => {
+            path.classList.remove('highlight');
+        });
+    });
+}
 
 function translateCountry(input: string): string | undefined {
     let upperInput = input.toUpperCase(); 
@@ -151,6 +152,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
                 currentSelected = table;
                 console.log(table)
                 toggleSidePanel(closestGroup.id, table, image);
+                countryStore.set(closestGroup.id)
+                updateHighlights();
             }
         }
     }
@@ -158,6 +161,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
             sidepanelToggler.set(false);
+            removeHighlights();
         }
     }
 
@@ -167,6 +171,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             if (get(sidepanelToggler)) {
                 sidepanelToggler.set(false);
             }
+            removeHighlights();
         }
     }
 

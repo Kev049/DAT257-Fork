@@ -2,15 +2,14 @@
     import { zoom, type ViewBox, startDrag, onDrag } from '../scripts/zoom';
     import { viewBoxStore } from '../store/mapStore';
     import { fetchCSVData, renderHeatmap } from '../scripts/heatmap';
+    
     export let viewBox: ViewBox = { x: 0, y: 0, width: 2000, height: 857 };
     export let svgElement : SVGSVGElement;
     let dragStart: { startX: number; startY: number } | null = null;
 
-    export async function intializeHeatmapPoits(){
+    export async function initialiseHeatmapPoints(){
         const data = await fetchCSVData();
-        const points = data[0]
-        const maxRadiation = data[1]
-        renderHeatmap(svgElement, points, maxRadiation);
+        renderHeatmap(svgElement, data);
     }
     
     viewBoxStore.subscribe(value => {
