@@ -13,10 +13,12 @@
 .country > path{
     fill: #fefee4;
     transition: fill 200ms;
+    stroke: blue;
+    stroke-width: 1px;
 }
 
 .country:hover > path{
-    fill: #fefef9
+    fill: blue;
 }
 
 path.highlight {
