@@ -42,7 +42,7 @@ export function onDrag(event: MouseEvent, startX: number, startY: number, viewBo
 export function zoom(event: WheelEvent, svgElement: SVGSVGElement, viewBox: ViewBox): ViewBox {
     event.preventDefault();
 
-    const scaleFactor = event.deltaY < 0 ? 1.1 : 0.9;
+    const scaleFactor = event.deltaY > 0 ? 1.1 : 0.9;
 
     const newWidth = viewBox.width * scaleFactor;
     const newHeight = viewBox.height * scaleFactor;
