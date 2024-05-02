@@ -19,7 +19,7 @@ interface SVGCoordinate {
 }
 
 export async function fetchCSVData(): Promise<[DataPoint[], number]> {
-    const url: string = "../../../../resources/irr.csv"
+    const url: string = "/irr.csv"
     
     try {
         const data: DataPoint[] = await csv(url, (d: any) => ({
