@@ -85,6 +85,7 @@ export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[]
         .weight(d => d.radiation)
         .size([svgDimensions.width, svgDimensions.height])
         .bandwidth(10)
+        .thresholds(20)
         (data);
 
     const maxContourValue: number = Math.max(...contours.map(c => c.value));
@@ -101,5 +102,5 @@ export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[]
         .attr('d', geoPath())
         .attr('fill', d => colorScale(d.value))
         .attr('pointer-events', 'none')
-        .style('opacity', 0.25);
+        .style('opacity', 0.2);
 }
