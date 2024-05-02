@@ -1,4 +1,4 @@
-import { select, scaleSequential, contourDensity, geoPath, interpolateInferno } from 'd3';
+import { select, scaleSequential, contourDensity, geoPath, interpolateInferno, selectAll } from 'd3';
 import proj4 from 'proj4';
 import { csv } from 'd3-fetch';
 
@@ -66,26 +66,40 @@ function convertCoordinates(lat: number, lon: number, svgDimensions: SVGDimensio
 export async function renderHeatmap(svgElement: SVGSVGElement, data: DataPoint[]): Promise<void> {
     const svgDimensions: SVGDimensions = { width: svgElement.viewBox.baseVal.width, height: svgElement.viewBox.baseVal.height };
 
+     // Define a clip path using all country outlines
+     const defs = select(svgElement).append('defs');
+     const clipPath = defs.append('clipPath')
+         .attr('id', 'heatmap-clip');
+ 
+     selectAll('g.country').each(function() {
+         const paths = select(this).selectAll('path');
+         paths.each(function() {
+             const currentPath = select(this);
+             clipPath.append(() => currentPath.node().cloneNode(true));
+         });
+     });
+
     const contours = contourDensity<DataPoint>()
-        .x(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x) //Coordinates that convert to proj4 and then to SVG
+        .x(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).x)
         .y(d => convertCoordinates(d.latitude, d.longitude, svgDimensions).y)
         .weight(d => d.radiation)
         .size([svgDimensions.width, svgDimensions.height])
-        .bandwidth(10)  
+        .bandwidth(10)
         (data);
 
-    const maxContourValue: number = Math.max(...contours.map(c=> c.value))
-
+    const maxContourValue: number = Math.max(...contours.map(c => c.value));
     const colorScale = scaleSequential(interpolateInferno).domain([0, maxContourValue]);
 
-    const heatmapGroup = select(svgElement).append('g').attr('id', 'heatmapGroup');
+    // Render the heatmap with the clip path applied
+    const heatmapGroup = select(svgElement).append('g')
+        .attr('id', 'heatmapGroup')
+        .attr('clip-path', 'url(#heatmap-clip)');
+
     heatmapGroup.selectAll('path')
         .data(contours)
         .enter().append('path')
         .attr('d', geoPath())
         .attr('fill', d => colorScale(d.value))
         .attr('pointer-events', 'none')
-        .style('opacity', 0.15);
+        .style('opacity', 0.25);
 }
-
-
