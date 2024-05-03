@@ -1,23 +1,36 @@
 import { get } from 'svelte/store';
-import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, xStore, yStore} from '../store/mapStore';
+import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, sidePanelUpdateStore, xStore, yStore} from '../store/mapStore';
 import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 
+export let currentTable = '';
+export let currentImage = '';
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
-export let current_selected: string = '';
+export let currentSelected: string = '';
 
 export function handleFormSubmit(event: Event) {
     event.preventDefault();
     updateHighlights();
 }
 
-function toggleSidePanel(country: string, content: string): void {
-    console.log(countries);
+async function updateSidePanel(id: string){
+    let table = await fetch(`http://127.0.0.1:5000/${id}`)
+                            .then(response => {return response.text();});
+    let image = await fetch(`http://127.0.0.1:5000/chart/${id}`)
+                            .then(image => {return image.text();});
+    currentTable = table;
+    currentImage = image;
+    currentSelected = table;
+    toggleSidePanel(id, currentTable, currentImage);
+}
+
+function toggleSidePanel(country: string, content: string, graph: string): void {
+    countryContentStore.set(content);
+    countryGraphStore.set(graph);
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
-        countryContentStore.set(content);
     }
     else {
         sidepanelToggler.set(false);
@@ -28,11 +41,7 @@ function updateHighlights() {
     // Remove highlights from all countries
     const groups = document.querySelectorAll('svg g');
 
-    groups.forEach(g => {
-        g.querySelectorAll('path').forEach(path => {
-            path.classList.remove('highlight');
-        });
-    });
+    removeHighlights();
 
     // Add highlight to correct country if there is one and toggle sidepanel
     groups.forEach(g => {
@@ -41,11 +50,11 @@ function updateHighlights() {
         if (translatedCountry === undefined) {
             return;
         }
+
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
-            // console.log(g.id)
-            // toggleSidePanel(g.id);
             zoomToCountry(svgElement, viewBox, g.id)
+            updateSidePanel(g.id);
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
@@ -53,7 +62,14 @@ function updateHighlights() {
     });
 }
 
-
+function removeHighlights(){
+    const groups = document.querySelectorAll('svg g');
+    groups.forEach(g => {
+        g.querySelectorAll('path').forEach(path => {
+            path.classList.remove('highlight');
+        });
+    });
+}
 
 function translateCountry(input: string): string | undefined {
     let upperInput = input.toUpperCase(); 
@@ -133,9 +149,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                const response = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`);
-                current_selected = await response.text();
-                toggleSidePanel(closestGroup.id ,current_selected);
+                updateSidePanel(closestGroup.id);
+                updateHighlights();
             }
         }
     }
@@ -143,6 +158,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
     function handleEscapeDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
             sidepanelToggler.set(false);
+            removeHighlights();
         }
     }
 
@@ -152,6 +168,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             if (get(sidepanelToggler)) {
                 sidepanelToggler.set(false);
             }
+            removeHighlights();
         }
     }
 
