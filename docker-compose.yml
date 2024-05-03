@@ -15,5 +15,5 @@ services:
       - "3000:3000"
     volumes:
       - ./sveltekit_app:/app
-      - ./sveltekit_app/static:/app/static
+       - ./sveltekit_app/static:/app/static
       - /app/node_modules
