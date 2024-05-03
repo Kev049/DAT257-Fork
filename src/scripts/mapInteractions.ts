@@ -3,8 +3,6 @@ import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, co
 import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
-import { updated } from '$app/stores';
-import { imageStore } from '../store/mapStore';
 
 export let currentTable = '';
 export let currentImage = '';
@@ -17,12 +15,22 @@ export function handleFormSubmit(event: Event) {
     updateHighlights();
 }
 
+async function updateSidePanel(id: string){
+    let table = await fetch(`http://127.0.0.1:5000/${id}`)
+                            .then(response => {return response.text();});
+    let image = await fetch(`http://127.0.0.1:5000/chart/${id}`)
+                            .then(image => {return image.text();});
+    currentTable = table;
+    currentImage = image;
+    currentSelected = table;
+    toggleSidePanel(id, currentTable, currentImage);
+}
+
 function toggleSidePanel(country: string, content: string, graph: string): void {
     countryContentStore.set(content);
-    countryGraphStore.set(graph)
+    countryGraphStore.set(graph);
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
-        sidePanelUpdateStore.set(true)
     }
     else {
         sidepanelToggler.set(false);
@@ -42,9 +50,11 @@ function updateHighlights() {
         if (translatedCountry === undefined) {
             return;
         }
+
         const paths = g.querySelectorAll('path');
         if (g.id.toLowerCase() === translatedCountry.toLowerCase()) {
             zoomToCountry(svgElement, viewBox, g.id)
+            updateSidePanel(g.id);
             paths.forEach(path => {
                 path.classList.add('highlight');
             });
@@ -101,10 +111,6 @@ export function initializeCountryMap() {
     })
 }
 
-function updateImage(): void{
-    imageStore.set("http://localhost:5173/country_graph.png#" + new Date().getTime());
-}
-
 export function setupMapInteractions(svgElement : SVGSVGElement) {
     svgElement.addEventListener('mouseover', handleMouseOver);
     svgElement.addEventListener('mousemove', handleMouseMove);
@@ -143,16 +149,7 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const closestGroup = target.closest('g');
             if (closestGroup) {
                 tooltipToggler.set(!get(tooltipToggler));
-                let table = await fetch(`http://127.0.0.1:5000/${closestGroup.id}`)
-                                        .then(response => {return response.text();});
-                let image = await fetch(`http://127.0.0.1:5000/chart/${closestGroup.id}`)
-                                        .then(image => {return image.text();});
-                currentTable = table;
-                currentImage = image;
-                currentSelected = table;
-                console.log(table)
-                toggleSidePanel(closestGroup.id, table, image);
-                countryStore.set(closestGroup.id)
+                updateSidePanel(closestGroup.id);
                 updateHighlights();
             }
         }
