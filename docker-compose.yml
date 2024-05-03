@@ -1,0 +1,19 @@
+services:
+  flask_app:
+    build: ./flask_app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=query_data.py
+    volumes:
+      - ./flask_app:/app
+
+  sveltekit_app:
+    build: ./sveltekit_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./sveltekit_app:/app
+       - ./sveltekit_app/static:/app/static
+      - /app/node_modules
