@@ -6,8 +6,10 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=query_data.py
+      - SVELTEKIT_STATIC_PATH=/app/sveltekit_app/static
     volumes:
       - ./flask_app:/app
+      - ../sveltekit_app/static:/app/sveltekit_app/static
 
   sveltekit_app:
     build: ./sveltekit_app

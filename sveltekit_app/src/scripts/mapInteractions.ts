@@ -23,6 +23,7 @@ async function updateSidePanel(id: string){
     currentTable = table;
     currentImage = image;
     currentSelected = table;
+    console.log(image);
     toggleSidePanel(id, currentTable, currentImage);
 }
 
