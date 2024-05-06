@@ -6,7 +6,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os   
 
-HTML_TEMPLATE = '<img src="country_graph.png" alt="Country graph" position:absolute bottom=0 width="800" height="600">'
+PROD_TEMPLATE = '<img src="country_prod/country_graph.png" alt="Country graph" position:absolute bottom=0 width="800" height="600">'
+CON_TEMPLATE = '<img src="country_con/country_graph.png" alt="Country graph" position:absolute bottom=0 width="800" height="600">'
 
 matplotlib.use('Agg')
 import math as ma
@@ -27,9 +28,9 @@ def query_data(country): # Returns a dataframe containing the country matching t
 
 @app.route("/chart/<country>", methods=['GET','POST'])
 def get_plot(country):
-    content = HTML_TEMPLATE
+    content = PROD_TEMPLATE
     content = content.replace('country_graph', country)
-    if not(os.path.exists(f'sveltekit_app/static/{country}.png')):
+    if not(os.path.exists(f'sveltekit_app/static/country_prod/{country}.png')):
         dataset = pd.read_csv('clumped_data.csv')
         energy_doc = (dataset[dataset['Country'].str.match(fr'{country}', case=False)])
         energy_doc = energy_doc.drop(['Code (alpha-3)', 'Country', 'Renewable energy production (%)'], axis=1).dropna(axis=1, how='all')
@@ -39,7 +40,26 @@ def get_plot(country):
             fig,ax = plt.subplots()
             ax.pie(values)
             fig.legend(labels=labels, loc='upper right', bbox_to_anchor=(0.1,1))
-            fig.savefig(f'sveltekit_app/static/{country}.png', bbox_inches='tight', pad_inches=0.8)
+            fig.savefig(f'sveltekit_app/static/country_prod/{country}.png', bbox_inches='tight', pad_inches=0.8)
+        else:
+            content = '<! no value>'
+    return content
+
+@app.route("/consumption/<country>", methods=['GET','POST'])
+def get_con(country):
+    content = PROD_TEMPLATE
+    content = content.replace('country_graph', country)
+    if not(os.path.exists(f'sveltekit_app/static/country_con/{country}.png')):
+        dataset = pd.read_csv('energyCon.csv')
+        energy_doc = (dataset[dataset['Entity'].str.match(fr'{country}', case=False)])
+        energy_doc = energy_doc.drop(['Code', 'Entity'], axis=1).dropna(axis=1, how='all')
+        labels = energy_doc.columns.tolist()
+        values = energy_doc.to_numpy().flatten()
+        if (values.any()):
+            fig,ax = plt.subplots()
+            ax.pie(values)
+            fig.legend(labels=labels, loc='upper right', bbox_to_anchor=(0.1,1))
+            fig.savefig(f'sveltekit_app/static/country_con/{country}.png', bbox_inches='tight', pad_inches=0.8)
         else:
             content = '<! no value>'
     return content
