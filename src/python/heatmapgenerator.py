@@ -5,7 +5,8 @@ import pvlib
 def retrieve_irradiance_data(index_location):
     index, location = index_location
     latitude, longitude = location
-    print(f"Now Processing Coordinate: {index} of {total_coordinates}")
+    per = (index / float(total_coordinates)) * 100
+    print(f"Now Processing Coordinate: {index} of {total_coordinates} - {per:.4f}% Done")
     # No need to increment index here
     try:
         irr_data = pvlib.iotools.get_pvgis_hourly(latitude, longitude, start=2014, end=2015)[0]
@@ -13,6 +14,11 @@ def retrieve_irradiance_data(index_location):
         return result
     except Exception as e:
         return None
+    
+def frange(start,stop,res):
+    while start < stop:
+        yield start
+        start += res
 
 def create_coord_list():
     #coord at (vertical) 70 to -40 long (horizontal) 120 to -150
@@ -21,9 +27,9 @@ def create_coord_list():
     lat_end = 70
     long_start = -150
     long_end = 120
-    resolution = 2
-    for lat in range(lat_start,lat_end,resolution):
-        for long_ in range(long_start, long_end, resolution):
+    resolution = 1
+    for lat in frange(lat_start,lat_end,resolution):
+        for long_ in frange(long_start, long_end, resolution):
             coords.append((lat, long_))
     return coords
 
