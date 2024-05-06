@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    -ms-overflow-style: none;
+}
+  
+.html{
+    scroll-behavior: smooth;
+}
+
+.country > path{
+    fill: #fefee4;
+    transition: fill 200ms;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.country:hover > path{
+    fill: #DB3638;
+}
+
+path.highlight {
+    fill: #DB3638;
+}
