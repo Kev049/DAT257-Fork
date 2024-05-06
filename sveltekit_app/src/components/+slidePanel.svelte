@@ -8,6 +8,7 @@
         countryGraph = currentImage;
     });
 
+    $: showImage = false;
     $: countryContent = 'Hej';
     $: countryGraph = 'Da';
     let src: string;
@@ -24,4 +25,8 @@
 <div class="absolute top-0 right-0 bottom-0 w-1/4 flex flex-col px-6 bg-white text-gray-700 border-b border-gray-200 z-10">
     {@html countryContent}
     {@html countryGraph}
+    <!-- {#if showImage}
+        {@html countryGraph}
+    {/if} -->
+    <button></button>
 </div>
