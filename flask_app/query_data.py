@@ -47,7 +47,7 @@ def get_plot(country):
 
 @app.route("/consumption/<country>", methods=['GET','POST'])
 def get_con(country):
-    content = PROD_TEMPLATE
+    content = CON_TEMPLATE
     content = content.replace('country_graph', country)
     if not(os.path.exists(f'sveltekit_app/static/country_con/{country}.png')):
         dataset = pd.read_csv('flask_app/energyCon.csv')

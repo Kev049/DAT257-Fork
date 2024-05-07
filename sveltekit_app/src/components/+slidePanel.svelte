@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { countryContentStore, countryGraphStore } from '../store/mapStore';
+    import { countryContentStore, countryGraphStore, countryConStore } from '../store/mapStore';
     import { onMount } from 'svelte'
     import { currentImage, currentTable, currentCon } from '../scripts/mapInteractions';
 
@@ -22,7 +22,7 @@
         countryGraph = value;
     });
 
-    countryContentStore.subscribe(value => {
+    countryConStore.subscribe(value => {
         countryCon = value;
     })
 </script>
