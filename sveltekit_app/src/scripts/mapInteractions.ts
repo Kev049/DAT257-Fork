@@ -27,7 +27,6 @@ async function updateSidePanel(id: string){
     currentImage = image;
     currentCon = con;
     currentSelected = table;
-    console.log(image);
     toggleSidePanel(id, currentTable, currentImage, con);
 }
 
@@ -154,8 +153,8 @@ export function setupMapInteractions(svgElement : SVGSVGElement) {
             const target = event.target as Element;
             const closestGroup = target.closest('g');
             if (closestGroup) {
+                countryStore.set(closestGroup.id);
                 tooltipToggler.set(!get(tooltipToggler));
-                updateSidePanel(closestGroup.id);
                 updateHighlights();
             }
         }
