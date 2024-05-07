@@ -1,11 +1,12 @@
 import { get } from 'svelte/store';
-import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, sidePanelUpdateStore, xStore, yStore} from '../store/mapStore';
+import { countryStore, tooltipToggler, sidepanelToggler, countryContentStore, countryGraphStore, sidePanelUpdateStore, xStore, yStore, countryConStore} from '../store/mapStore';
 import { twoLetterCountryCodes, threeLetterCountryCodes } from './countryCodes';
 import { zoomToCountry } from './zoom';
 import { viewBox, svgElement } from '../components/+map.svelte';
 
 export let currentTable = '';
 export let currentImage = '';
+export let currentCon = '';
 export let tooltipContent: string = '';
 export let countries: Set<string> = new Set<string>();
 export let currentSelected: string = '';
@@ -20,16 +21,20 @@ async function updateSidePanel(id: string){
                             .then(response => {return response.text();});
     let image = await fetch(`http://127.0.0.1:5000/chart/${id}`)
                             .then(image => {return image.text();});
+    let con = await fetch(`http://127.0.0.1:5000/consumption/${id}`)
+                            .then(consumption => {return consumption.text();});
     currentTable = table;
     currentImage = image;
+    currentCon = con;
     currentSelected = table;
     console.log(image);
-    toggleSidePanel(id, currentTable, currentImage);
+    toggleSidePanel(id, currentTable, currentImage, con);
 }
 
-function toggleSidePanel(country: string, content: string, graph: string): void {
+function toggleSidePanel(country: string, content: string, graph: string, consumption: string): void {
     countryContentStore.set(content);
     countryGraphStore.set(graph);
+    countryConStore.set(consumption)
     if (!get(sidepanelToggler) || country !== get(countryStore)) {
         sidepanelToggler.set(true);
     }

@@ -8,6 +8,7 @@ export let sidepanelToggler = writable(false);
 export let sidePanelUpdateStore = writable(false);
 export let countryContentStore = writable('');
 export let countryGraphStore = writable('');
+export let countryConStore = writable('');
 export let xStore = writable(0);
 export let yStore = writable(0);
 export let viewBoxStore: Writable<ViewBox> = writable({

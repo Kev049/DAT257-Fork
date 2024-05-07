@@ -19,7 +19,7 @@ CORS(app)
 def query_data(country): # Returns a dataframe containing the country matching the input string and the data of that country.
                   # Will return an empty dataframe (but containing its columns) if the input does not match a country.
     #country = request.args.get('country',type=str)
-    dataset = pd.read_csv('clumped_data.csv')
+    dataset = pd.read_csv('flask_app/clumped_data.csv')
     #values = dataset[dataset['Country'].str.contains(fr'{country}', case=False)].reset_index().to_json(orient='records')
     formatted = (dataset[dataset['Country'].str.match(fr'{country}', case=False)].reset_index()).dropna(axis=1, how='all').transpose()
     dropped = formatted.iloc[1: , :]
@@ -31,7 +31,7 @@ def get_plot(country):
     content = PROD_TEMPLATE
     content = content.replace('country_graph', country)
     if not(os.path.exists(f'sveltekit_app/static/country_prod/{country}.png')):
-        dataset = pd.read_csv('clumped_data.csv')
+        dataset = pd.read_csv('flask_app/clumped_data.csv')
         energy_doc = (dataset[dataset['Country'].str.match(fr'{country}', case=False)])
         energy_doc = energy_doc.drop(['Code (alpha-3)', 'Country', 'Renewable energy production (%)'], axis=1).dropna(axis=1, how='all')
         labels = energy_doc.columns.tolist()
@@ -50,9 +50,9 @@ def get_con(country):
     content = PROD_TEMPLATE
     content = content.replace('country_graph', country)
     if not(os.path.exists(f'sveltekit_app/static/country_con/{country}.png')):
-        dataset = pd.read_csv('energyCon.csv')
+        dataset = pd.read_csv('flask_app/energyCon.csv')
         energy_doc = (dataset[dataset['Entity'].str.match(fr'{country}', case=False)])
-        energy_doc = energy_doc.drop(['Code', 'Entity'], axis=1).dropna(axis=1, how='all')
+        energy_doc = energy_doc.drop(['Code', 'Entity', 'Year'], axis=1).dropna(axis=1, how='all')
         labels = energy_doc.columns.tolist()
         values = energy_doc.to_numpy().flatten()
         if (values.any()):
