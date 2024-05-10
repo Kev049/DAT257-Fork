@@ -1,5 +1,6 @@
 services:
   flask_app:
+    container_name: xx-backend
     build: ./flask_app
     ports:
       - "5000:5000"
@@ -12,6 +13,7 @@ services:
       - ../sveltekit_app/static:/app/sveltekit_app/static
 
   sveltekit_app:
+    container_name: xx-frontend
     build: ./sveltekit_app
     ports:
       - "3000:3000"
